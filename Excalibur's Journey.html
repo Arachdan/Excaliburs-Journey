@@ -1,0 +1,3230 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Excalibur's Journey</title>
+		<style>
+			body {
+				background-color: lightGray;
+			}
+			#game_title {
+				text-shadow: 2px 2px blue;
+			}
+			.buttons {
+				font-size: 25px;
+				width: 10%;
+			}
+			.buttons:hover {
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="game_title" align="center">
+			<big><big><h1>Excalibur's Journey</h1></big></big>
+		</div>
+		<br/><br/><br/><br/><br/><br/><br/><br/>
+		<div align="center">
+			<button class="buttons" id="user_manual" onclick="user_manual_page()">Instrukcja</button>
+			<br/><br/><br/>
+			<button class="buttons" id="play" onclick="choose_number_of_players()">Zagraj</button>
+		</div>
+	</body>
+	<script>
+		/* (opcjonalne) Zrobić ograniczenie, że nie może być zbyt dużo czerwonych pól obok siebie (mogę użyć countera); */
+	
+		var board;
+		var context_b;
+		
+		var canvas_content;
+		
+		var p_1_position_x = 12.5;
+		var p_1_position_y = 12.5;
+		
+		var p_2_position_x = 37.5;
+		var p_2_position_y = 12.5;
+		
+		var p_3_position_x = 12.5;
+		var p_3_position_y = 37.5;
+		
+		var p_4_position_x = 37.5;
+		var p_4_position_y = 37.5;
+		
+		var players_names = [];
+		
+		var apostrophe = '&#39';
+	
+		function game() {
+			sessionStorage.setItem('player_turn', 1);
+			
+			players_names[0] = sessionStorage.getItem('player_1_name');
+			players_names[1] = sessionStorage.getItem('player_2_name');
+			players_names[2] = sessionStorage.getItem('player_3_name');
+			players_names[3] = sessionStorage.getItem('player_4_name');
+			
+			
+			board = document.getElementById('board');
+			context_b = board.getContext('2d');
+		
+			// Checking board's size.
+			/* context_b.moveTo(0, 0);
+			context_b.lineTo(1300, 400);
+			context_b.stroke(); */
+			
+			let time = new Date();
+			
+			draw_board();
+			draw_a_decoration();
+			canvas_content = context_b.getImageData(0, 0, 1300, 400);
+			
+			draw_players(sessionStorage.getItem('number_of_players'));
+			
+			sessionStorage.setItem('p_1_side', 'down');
+			sessionStorage.setItem('p_2_side', 'down');
+			sessionStorage.setItem('p_3_side', 'down');
+			sessionStorage.setItem('p_4_side', 'down');
+			
+			function draw_board() {
+				let x = 0;
+				let y = 0;
+				
+				while(x < 1300 - 50) {
+					if(x == 0 && y == 0) {
+						context_b.rect(x, y, 50, 50);
+						context_b.fillStyle = 'green';
+						context_b.fill();
+						context_b.stroke();
+					
+						context_b.font = '20px Arial';
+						context_b.fillStyle = 'black';
+						context_b.fillText('Start', 4, 30);
+						x += 50;
+					}
+					
+					context_b.beginPath();
+					context_b.rect(x, y, 50, 50);
+					draw_a_space_difficulty_by_random(time);
+					context_b.fill();
+					context_b.stroke();
+					x += 50;
+				}
+				while(y < 400 - 50) {
+					context_b.beginPath();
+					context_b.rect(x, y, 50, 50);
+					draw_a_space_difficulty_by_random(time);
+					context_b.fill();
+					context_b.stroke();
+					y += 50;
+				}
+				while(x > 0) {
+					context_b.beginPath();
+					context_b.rect(x, y, 50, 50);
+					draw_a_space_difficulty_by_random(time);
+					context_b.fill();
+					context_b.stroke();
+					x -= 50;
+				}
+				while(y > 0) {
+					context_b.beginPath();
+					context_b.rect(x, y, 50, 50);
+					draw_a_space_difficulty_by_random(time);
+					context_b.fill();
+					context_b.stroke();
+					y -= 50;
+				}
+			}
+			
+			function draw_a_space_difficulty_by_random(current_time) {
+				let random_num = Math.round((Math.random() * current_time.getMilliseconds())) % 4;
+				
+				switch(random_num) {
+					case 0:
+						context_b.fillStyle = 'green';
+						break;
+					case 1:
+						context_b.fillStyle = 'yellow';
+						break;
+					case 2:
+						context_b.fillStyle = 'red';
+						break;
+					case 3:
+						context_b.fillStyle = 'green';
+						break;
+				}
+			}
+		}
+		
+		function draw_players(x) {
+			if(x == 2) {
+				context_b.beginPath();
+				context_b.arc(p_1_position_x, p_1_position_y, 10, 0, 2 * Math.PI);
+				context_b.fillStyle = sessionStorage.getItem('player_1_color');
+				context_b.fill();
+				context_b.stroke();
+					
+				context_b.beginPath();
+				context_b.arc(p_2_position_x, p_2_position_y, 10, 0, 2 * Math.PI);
+				context_b.fillStyle = sessionStorage.getItem('player_2_color');
+				context_b.fill();
+				context_b.stroke();
+			}
+			else if(x == 3) {
+				context_b.beginPath();
+				context_b.arc(p_1_position_x, p_1_position_y, 10, 0, 2 * Math.PI);
+				context_b.fillStyle = sessionStorage.getItem('player_1_color');
+				context_b.fill();
+				context_b.stroke();
+				
+				context_b.beginPath();
+				context_b.arc(p_2_position_x, p_2_position_y, 10, 0, 2 * Math.PI);
+				context_b.fillStyle = sessionStorage.getItem('player_2_color');
+				context_b.fill();
+				context_b.stroke();
+				
+				context_b.beginPath();
+				context_b.arc(p_3_position_x, p_3_position_y, 10, 0, 2 * Math.PI);
+				context_b.fillStyle = sessionStorage.getItem('player_3_color');
+				context_b.fill();
+				context_b.stroke();
+			}
+			else if(x == 4) {
+				context_b.beginPath();
+				context_b.arc(p_1_position_x, p_1_position_y, 10, 0, 2 * Math.PI);
+				context_b.fillStyle = sessionStorage.getItem('player_1_color');
+				context_b.fill();
+				context_b.stroke();
+				
+				context_b.beginPath();
+				context_b.arc(p_2_position_x, p_2_position_y, 10, 0, 2 * Math.PI);
+				context_b.fillStyle = sessionStorage.getItem('player_2_color');
+				context_b.fill();
+				context_b.stroke();
+				
+				context_b.beginPath();
+				context_b.arc(p_3_position_x, p_3_position_y, 10, 0, 2 * Math.PI);
+				context_b.fillStyle = sessionStorage.getItem('player_3_color');
+				context_b.fill();
+				context_b.stroke();
+				
+				context_b.beginPath();
+				context_b.arc(p_4_position_x, p_4_position_y, 10, 0, 2 * Math.PI);
+				context_b.fillStyle = sessionStorage.getItem('player_4_color');
+				context_b.fill();
+				context_b.stroke();
+			}
+		}
+		
+		function choose_number_of_players() {
+			let number_of_players = prompt('Podaj liczbę graczy.');
+			if(number_of_players) {
+				while(number_of_players > 4 || number_of_players < 2) {
+					number_of_players = prompt('Podałeś nieprawidłową liczbę. Podaj liczbę graczy (z zakresu 2-4).'); 
+				}
+				sessionStorage.setItem('number_of_players', number_of_players);
+				
+				choose_appearance_of_players(number_of_players);
+			}
+		}
+		
+		function choose_appearance_of_players(x) {
+			var canvas_1_blue;
+			var canvas_1_magenta;
+			var canvas_1_orange;
+			var canvas_1_aqua;
+			
+			var canvas_2_blue;
+			var canvas_2_magenta;
+			var canvas_2_orange;
+			var canvas_2_aqua;
+			
+			var canvas_3_blue;
+			var canvas_3_magenta;
+			var canvas_3_orange;
+			var canvas_3_aqua;
+			
+			var canvas_4_blue;
+			var canvas_4_magenta;
+			var canvas_4_orange;
+			var canvas_4_aqua;
+			
+			sessionStorage.setItem('limit_b', 0);
+			sessionStorage.setItem('limit_m', 0);
+			sessionStorage.setItem('limit_o', 0);
+			sessionStorage.setItem('limit_a', 0);
+		
+			if(x == 2) {
+				document.body.innerHTML = '<table border=2 align="center" width=100%><tr height="100px"><td><div align="center"><b><big>Gracz 1</big></b></div><div><textarea rows=1 placeholder="Nazwa gracza (więcej niż 1 litera)" id="player_1_name"></textarea></div><br/><div><b>Wybierz kolor pionka: &nbsp</b><canvas id="player_1_blue" height="30px" width="30px"></canvas> &nbsp <canvas id="player_1_magenta" height="30px" width="30px"></canvas> &nbsp <canvas id="player_1_orange" height="30px" width="30px"></canvas> &nbsp <canvas id="player_1_aqua" height="30px" width="30px"></canvas></div></td><td><div align="center"><b><big>Gracz 2</big></b></div><div><textarea rows=1 placeholder="Nazwa gracza (więcej niż 1 litera)" id="player_2_name"></textarea></div><br/><div><b>Wybierz kolor pionka: &nbsp </b><canvas id="player_2_blue" height="30px" width="30px"></canvas> &nbsp <canvas id="player_2_magenta" height="30px" width="30px"></canvas> &nbsp <canvas id="player_2_orange" height="30px" width="30px"></canvas> &nbsp <canvas id="player_2_aqua" height="30px" width="30px"></canvas></div></td></tr></table><br/><br/><br/><div align="center"><button id="start_game_button">Graj</button></div>';
+				
+				canvas_1_blue = document.getElementById('player_1_blue');
+				let ctx_1_blue = canvas_1_blue.getContext('2d');
+				ctx_1_blue.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_blue.fillStyle = 'blue';
+				ctx_1_blue.fill();
+				
+				canvas_1_magenta = document.getElementById('player_1_magenta');
+				let ctx_1_magenta = canvas_1_magenta.getContext('2d');
+				ctx_1_magenta.beginPath();
+				ctx_1_magenta.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_magenta.fillStyle = 'magenta';
+				ctx_1_magenta.fill();
+				
+				canvas_1_orange = document.getElementById('player_1_orange');
+				let ctx_1_orange = canvas_1_orange.getContext('2d');
+				ctx_1_orange.beginPath();
+				ctx_1_orange.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_orange.fillStyle = 'orange';
+				ctx_1_orange.fill();
+				
+				canvas_1_aqua = document.getElementById('player_1_aqua');
+				let ctx_1_aqua = canvas_1_aqua.getContext('2d');
+				ctx_1_aqua.beginPath();
+				ctx_1_aqua.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_aqua.fillStyle = 'aqua';
+				ctx_1_aqua.fill();
+				
+				canvas_2_blue = document.getElementById('player_2_blue');
+				let ctx_2_blue = canvas_2_blue.getContext('2d');
+				
+				ctx_2_blue.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_blue.fillStyle = 'blue';
+				ctx_2_blue.fill();
+				
+				canvas_2_magenta = document.getElementById('player_2_magenta');
+				let ctx_2_magenta = canvas_2_magenta.getContext('2d');
+				
+				ctx_2_magenta.beginPath();
+				ctx_2_magenta.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_magenta.fillStyle = 'magenta';
+				ctx_2_magenta.fill();
+				
+				canvas_2_orange = document.getElementById('player_2_orange');
+				let ctx_2_orange = canvas_2_orange.getContext('2d');
+				
+				ctx_2_orange.beginPath();
+				ctx_2_orange.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_orange.fillStyle = 'orange';
+				ctx_2_orange.fill();
+				
+				canvas_2_aqua = document.getElementById('player_2_aqua');
+				let ctx_2_aqua = canvas_2_aqua.getContext('2d');
+				
+				ctx_2_aqua.beginPath();
+				ctx_2_aqua.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_aqua.fillStyle = 'aqua';
+				ctx_2_aqua.fill();
+				
+				canvas_1_blue.onclick = function() {
+					player_color_picker(1, 'b');
+				}
+				
+				canvas_1_magenta.onclick = function() {
+					player_color_picker(1, 'm');
+				}
+				
+				canvas_1_orange.onclick = function() {
+					player_color_picker(1, 'o');
+				}
+				
+				canvas_1_aqua.onclick = function() {
+					player_color_picker(1, 'a');
+				}
+				
+				canvas_2_blue.onclick = function() {
+					player_color_picker(2, 'b');
+				}
+				
+				canvas_2_magenta.onclick = function() {
+					player_color_picker(2, 'm');
+				}
+				
+				canvas_2_orange.onclick = function() {
+					player_color_picker(2, 'o');
+				}
+				
+				canvas_2_aqua.onclick = function() {
+					player_color_picker(2, 'a');
+				}
+				
+				canvas_1_blue.style.cursor = 'pointer';
+				canvas_1_magenta.style.cursor = 'pointer';
+				canvas_1_orange.style.cursor = 'pointer';
+				canvas_1_aqua.style.cursor = 'pointer';
+				
+				canvas_2_blue.style.cursor = 'pointer';
+				canvas_2_magenta.style.cursor = 'pointer';
+				canvas_2_orange.style.cursor = 'pointer';
+				canvas_2_aqua.style.cursor = 'pointer';
+				
+				let start_game_button = document.getElementById('start_game_button');
+				start_game_button.style.width = '10%';
+				start_game_button.style.fontSize = '25px';
+				start_game_button.style.cursor = 'pointer';
+				start_game_button.onclick = function() {
+					if((player_1_name.value.length > 1 && player_2_name.value.length > 1) && (sessionStorage.getItem('player_1_color').length > 0 && sessionStorage.getItem('player_2_color').length > 0)) {
+						let player_1_name = document.getElementById('player_1_name');
+						sessionStorage.setItem('player_1_name', player_1_name.value);
+						
+						let player_2_name = document.getElementById('player_2_name');
+						sessionStorage.setItem('player_2_name', player_2_name.value);
+						
+						document.body.innerHTML = '<div><canvas id="board" width="1300px" height="400px">Your browser does not support the HTML5 canvas tag.</canvas></div><br/><br/><br/><div align="center"><table width="10%"><tr align="center"><td><button onclick="return throw_a_dice()" id="dice_button">Rzuć kostką</button></td></tr><tr align="center"><td id="dice_number_place"></td></tr></table></div><hr/><div id="task_container"></div>';
+						document.getElementById('dice_button').style.cursor = 'pointer';
+						document.getElementById('dice_button').style.fontSize = '20px';
+						document.getElementById('dice_number_place').style.fontSize = '15px';
+						document.getElementById('dice_number_place').style.fontWeight = 'bolder';
+						game();
+						document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+					}
+					else {
+						alert('Nie wszystkie dane zostały podane!');
+					}
+				}
+			}
+			else if(x == 3) {
+				document.body.innerHTML = '<table border=2 align="center" width=100%><tr height="100px"><td><div align="center"><b><big>Gracz 1</big></b></div><div><textarea rows=1 placeholder="Nazwa gracza (więcej niż 1 litera)" id="player_1_name"></textarea></div><br/><div><b>Wybierz kolor pionka: &nbsp</b><canvas id="player_1_blue" height="30px" width="30px"></canvas> &nbsp <canvas id="player_1_magenta" height="30px" width="30px"></canvas> &nbsp <canvas id="player_1_orange" height="30px" width="30px"></canvas> &nbsp <canvas id="player_1_aqua" height="30px" width="30px"></canvas></div></td><td><div align="center"><b><big>Gracz 2</big></b></div><div><textarea rows=1 placeholder="Nazwa gracza (więcej niż 1 litera)" id="player_2_name"></textarea></div><br/><div><b>Wybierz kolor pionka: &nbsp </b><canvas id="player_2_blue" height="30px" width="30px"></canvas> &nbsp <canvas id="player_2_magenta" height="30px" width="30px"></canvas> &nbsp <canvas id="player_2_orange" height="30px" width="30px"></canvas> &nbsp <canvas id="player_2_aqua" height="30px" width="30px"></canvas></div></td></tr><tr><td><div align="center"><b><big>Gracz 3</big></b></div><div><textarea rows=1 placeholder="Nazwa gracza (więcej niż 1 litera)" id="player_3_name"></textarea></div><br/><div><b>Wybierz kolor pionka: &nbsp </b><canvas id="player_3_blue" height="30px" width="30px"></canvas> &nbsp <canvas id="player_3_magenta" height="30px" width="30px"></canvas> &nbsp <canvas id="player_3_orange" height="30px" width="30px"></canvas> &nbsp <canvas id="player_3_aqua" height="30px" width="30px"></canvas></div></td></tr></table><br/><br/><br/><div align="center"><button id="start_game_button">Graj</button></div>';
+				
+				canvas_1_blue = document.getElementById('player_1_blue');
+				let ctx_1_blue = canvas_1_blue.getContext('2d');
+				ctx_1_blue.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_blue.fillStyle = 'blue';
+				ctx_1_blue.fill();
+				
+				canvas_1_magenta = document.getElementById('player_1_magenta');
+				let ctx_1_magenta = canvas_1_magenta.getContext('2d');
+				ctx_1_magenta.beginPath();
+				ctx_1_magenta.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_magenta.fillStyle = 'magenta';
+				ctx_1_magenta.fill();
+				
+				canvas_1_orange = document.getElementById('player_1_orange');
+				let ctx_1_orange = canvas_1_orange.getContext('2d');
+				ctx_1_orange.beginPath();
+				ctx_1_orange.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_orange.fillStyle = 'orange';
+				ctx_1_orange.fill();
+				
+				canvas_1_aqua = document.getElementById('player_1_aqua');
+				let ctx_1_aqua = canvas_1_aqua.getContext('2d');
+				ctx_1_aqua.beginPath();
+				ctx_1_aqua.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_aqua.fillStyle = 'aqua';
+				ctx_1_aqua.fill();
+				
+				canvas_2_blue = document.getElementById('player_2_blue');
+				let ctx_2_blue = canvas_2_blue.getContext('2d');
+				
+				ctx_2_blue.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_blue.fillStyle = 'blue';
+				ctx_2_blue.fill();
+				
+				canvas_2_magenta = document.getElementById('player_2_magenta');
+				let ctx_2_magenta = canvas_2_magenta.getContext('2d');
+				
+				ctx_2_magenta.beginPath();
+				ctx_2_magenta.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_magenta.fillStyle = 'magenta';
+				ctx_2_magenta.fill();
+				
+				canvas_2_orange = document.getElementById('player_2_orange');
+				let ctx_2_orange = canvas_2_orange.getContext('2d');
+				
+				ctx_2_orange.beginPath();
+				ctx_2_orange.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_orange.fillStyle = 'orange';
+				ctx_2_orange.fill();
+				
+				canvas_2_aqua = document.getElementById('player_2_aqua');
+				let ctx_2_aqua = canvas_2_aqua.getContext('2d');
+				
+				ctx_2_aqua.beginPath();
+				ctx_2_aqua.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_aqua.fillStyle = 'aqua';
+				ctx_2_aqua.fill();
+				
+				canvas_3_blue = document.getElementById('player_3_blue');
+				let ctx_3_blue = canvas_3_blue.getContext('2d');
+				
+				ctx_3_blue.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_3_blue.fillStyle = 'blue';
+				ctx_3_blue.fill();
+				
+				canvas_3_magenta = document.getElementById('player_3_magenta');
+				let ctx_3_magenta = canvas_3_magenta.getContext('2d');
+				
+				ctx_3_magenta.beginPath();
+				ctx_3_magenta.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_3_magenta.fillStyle = 'magenta';
+				ctx_3_magenta.fill();
+				
+				canvas_3_orange = document.getElementById('player_3_orange');
+				let ctx_3_orange = canvas_3_orange.getContext('2d');
+				
+				ctx_3_orange.beginPath();
+				ctx_3_orange.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_3_orange.fillStyle = 'orange';
+				ctx_3_orange.fill();
+				
+				canvas_3_aqua = document.getElementById('player_3_aqua');
+				let ctx_3_aqua = canvas_3_aqua.getContext('2d');
+				
+				ctx_3_aqua.beginPath();
+				ctx_3_aqua.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_3_aqua.fillStyle = 'aqua';
+				ctx_3_aqua.fill();
+				
+				canvas_1_blue.onclick = function() {
+					player_color_picker(1, 'b');
+				}
+				
+				canvas_1_magenta.onclick = function() {
+					player_color_picker(1, 'm');
+				}
+				
+				canvas_1_orange.onclick = function() {
+					player_color_picker(1, 'o');
+				}
+				
+				canvas_1_aqua.onclick = function() {
+					player_color_picker(1, 'a');
+				}
+				
+				canvas_2_blue.onclick = function() {
+					player_color_picker(2, 'b');
+				}
+				
+				canvas_2_magenta.onclick = function() {
+					player_color_picker(2, 'm');
+				}
+				
+				canvas_2_orange.onclick = function() {
+					player_color_picker(2, 'o');
+				}
+				
+				canvas_2_aqua.onclick = function() {
+					player_color_picker(2, 'a');
+				}
+				
+				canvas_3_blue.onclick = function() {
+					player_color_picker(3, 'b');
+				}
+				
+				canvas_3_magenta.onclick = function() {
+					player_color_picker(3, 'm');
+				}
+				
+				canvas_3_orange.onclick = function() {
+					player_color_picker(3, 'o');
+				}
+				
+				canvas_3_aqua.onclick = function() {
+					player_color_picker(3, 'a');
+				}
+				
+				canvas_1_blue.style.cursor = 'pointer';
+				canvas_1_magenta.style.cursor = 'pointer';
+				canvas_1_orange.style.cursor = 'pointer';
+				canvas_1_aqua.style.cursor = 'pointer';
+				
+				canvas_2_blue.style.cursor = 'pointer';
+				canvas_2_magenta.style.cursor = 'pointer';
+				canvas_2_orange.style.cursor = 'pointer';
+				canvas_2_aqua.style.cursor = 'pointer';
+				
+				canvas_3_blue.style.cursor = 'pointer';
+				canvas_3_magenta.style.cursor = 'pointer';
+				canvas_3_orange.style.cursor = 'pointer';
+				canvas_3_aqua.style.cursor = 'pointer';
+				
+				let start_game_button = document.getElementById('start_game_button');
+				start_game_button.style.width = '10%';
+				start_game_button.style.fontSize = '25px';
+				start_game_button.style.cursor = 'pointer';
+				start_game_button.onclick = function() {
+					if((player_1_name.value.length > 1 && player_2_name.value.length > 1 && player_3_name.value.length > 1) && (sessionStorage.getItem('player_1_color').length > 0 && sessionStorage.getItem('player_2_color').length > 0 && sessionStorage.getItem('player_3_color').length > 0)) {
+						let player_1_name = document.getElementById('player_1_name');
+						sessionStorage.setItem('player_1_name', player_1_name.value);
+						
+						let player_2_name = document.getElementById('player_2_name');
+						sessionStorage.setItem('player_2_name', player_2_name.value);
+						
+						let player_3_name = document.getElementById('player_3_name');
+						sessionStorage.setItem('player_3_name', player_3_name.value);
+						
+						document.body.innerHTML = '<div><canvas id="board" width="1300px" height="400px">Your browser does not support the HTML5 canvas tag.</canvas></div><br/><br/><br/><div align="center"><table width="10%"><tr align="center"><td><button onclick="return throw_a_dice()" id="dice_button">Rzuć kostką</button></td></tr><tr align="center"><td id="dice_number_place"></td></tr></table></div><hr/><div id="task_container"></div>';
+						document.getElementById('dice_button').style.cursor = 'pointer';
+						document.getElementById('dice_button').style.fontSize = '20px';
+						document.getElementById('dice_number_place').style.fontSize = '15px';
+						document.getElementById('dice_number_place').style.fontWeight = 'bolder';
+						game();
+						document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+					}
+					else {
+						alert('Nie wszystkie dane zostały podane!');
+					}
+				}
+			}
+			else if(x == 4) {
+				document.body.innerHTML = '<table border=2 align="center" width=100%><tr height="100px"><td><div align="center"><b><big>Gracz 1</big></b></div><div><textarea rows=1 placeholder="Nazwa gracza (więcej niż 1 litera)" id="player_1_name"></textarea></div><br/><div><b>Wybierz kolor pionka: &nbsp</b><canvas id="player_1_blue" height="30px" width="30px"></canvas> &nbsp <canvas id="player_1_magenta" height="30px" width="30px"></canvas> &nbsp <canvas id="player_1_orange" height="30px" width="30px"></canvas> &nbsp <canvas id="player_1_aqua" height="30px" width="30px"></canvas></div></td><td><div align="center"><b><big>Gracz 2</big></b></div><div><textarea rows=1 placeholder="Nazwa gracza (więcej niż 1 litera)" id="player_2_name"></textarea></div><br/><div><b>Wybierz kolor pionka: &nbsp </b><canvas id="player_2_blue" height="30px" width="30px"></canvas> &nbsp <canvas id="player_2_magenta" height="30px" width="30px"></canvas> &nbsp <canvas id="player_2_orange" height="30px" width="30px"></canvas> &nbsp <canvas id="player_2_aqua" height="30px" width="30px"></canvas></div></td></tr><tr><td><div align="center"><b><big>Gracz 3</big></b></div><div><textarea rows=1 placeholder="Nazwa gracza (więcej niż 1 litera)" id="player_3_name"></textarea></div><br/><div><b>Wybierz kolor pionka: &nbsp </b><canvas id="player_3_blue" height="30px" width="30px"></canvas> &nbsp <canvas id="player_3_magenta" height="30px" width="30px"></canvas> &nbsp <canvas id="player_3_orange" height="30px" width="30px"></canvas> &nbsp <canvas id="player_3_aqua" height="30px" width="30px"></canvas></div></td><td><div align="center"><b><big>Gracz 4</big></b></div><div><textarea rows=1 placeholder="Nazwa gracza (więcej niż 1 litera)" id="player_4_name"></textarea></div><br/><div><b>Wybierz kolor pionka: &nbsp </b><canvas id="player_4_blue" height="30px" width="30px"></canvas> &nbsp <canvas id="player_4_magenta" height="30px" width="30px"></canvas> &nbsp <canvas id="player_4_orange" height="30px" width="30px"></canvas> &nbsp <canvas id="player_4_aqua" height="30px" width="30px"></canvas></div></td></tr></table><br/><br/><br/><div align="center"><button id="start_game_button">Graj</button></div>';
+				
+				canvas_1_blue = document.getElementById('player_1_blue');
+				let ctx_1_blue = canvas_1_blue.getContext('2d');
+				ctx_1_blue.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_blue.fillStyle = 'blue';
+				ctx_1_blue.fill();
+				
+				canvas_1_magenta = document.getElementById('player_1_magenta');
+				let ctx_1_magenta = canvas_1_magenta.getContext('2d');
+				ctx_1_magenta.beginPath();
+				ctx_1_magenta.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_magenta.fillStyle = 'magenta';
+				ctx_1_magenta.fill();
+				
+				canvas_1_orange = document.getElementById('player_1_orange');
+				let ctx_1_orange = canvas_1_orange.getContext('2d');
+				ctx_1_orange.beginPath();
+				ctx_1_orange.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_orange.fillStyle = 'orange';
+				ctx_1_orange.fill();
+				
+				canvas_1_aqua = document.getElementById('player_1_aqua');
+				let ctx_1_aqua = canvas_1_aqua.getContext('2d');
+				ctx_1_aqua.beginPath();
+				ctx_1_aqua.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_1_aqua.fillStyle = 'aqua';
+				ctx_1_aqua.fill();
+				
+				canvas_2_blue = document.getElementById('player_2_blue');
+				let ctx_2_blue = canvas_2_blue.getContext('2d');
+				
+				ctx_2_blue.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_blue.fillStyle = 'blue';
+				ctx_2_blue.fill();
+				
+				canvas_2_magenta = document.getElementById('player_2_magenta');
+				let ctx_2_magenta = canvas_2_magenta.getContext('2d');
+				
+				ctx_2_magenta.beginPath();
+				ctx_2_magenta.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_magenta.fillStyle = 'magenta';
+				ctx_2_magenta.fill();
+				
+				canvas_2_orange = document.getElementById('player_2_orange');
+				let ctx_2_orange = canvas_2_orange.getContext('2d');
+				
+				ctx_2_orange.beginPath();
+				ctx_2_orange.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_orange.fillStyle = 'orange';
+				ctx_2_orange.fill();
+				
+				canvas_2_aqua = document.getElementById('player_2_aqua');
+				let ctx_2_aqua = canvas_2_aqua.getContext('2d');
+				
+				ctx_2_aqua.beginPath();
+				ctx_2_aqua.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_2_aqua.fillStyle = 'aqua';
+				ctx_2_aqua.fill();
+				
+				canvas_3_blue = document.getElementById('player_3_blue');
+				let ctx_3_blue = canvas_3_blue.getContext('2d');
+				
+				ctx_3_blue.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_3_blue.fillStyle = 'blue';
+				ctx_3_blue.fill();
+				
+				canvas_3_magenta = document.getElementById('player_3_magenta');
+				let ctx_3_magenta = canvas_3_magenta.getContext('2d');
+				
+				ctx_3_magenta.beginPath();
+				ctx_3_magenta.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_3_magenta.fillStyle = 'magenta';
+				ctx_3_magenta.fill();
+				
+				canvas_3_orange = document.getElementById('player_3_orange');
+				let ctx_3_orange = canvas_3_orange.getContext('2d');
+				
+				ctx_3_orange.beginPath();
+				ctx_3_orange.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_3_orange.fillStyle = 'orange';
+				ctx_3_orange.fill();
+				
+				canvas_3_aqua = document.getElementById('player_3_aqua');
+				let ctx_3_aqua = canvas_3_aqua.getContext('2d');
+				
+				ctx_3_aqua.beginPath();
+				ctx_3_aqua.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_3_aqua.fillStyle = 'aqua';
+				ctx_3_aqua.fill();
+				
+				canvas_4_blue = document.getElementById('player_4_blue');
+				let ctx_4_blue = canvas_4_blue.getContext('2d');
+				
+				ctx_4_blue.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_4_blue.fillStyle = 'blue';
+				ctx_4_blue.fill();
+				
+				canvas_4_magenta = document.getElementById('player_4_magenta');
+				let ctx_4_magenta = canvas_4_magenta.getContext('2d');
+				
+				ctx_4_magenta.beginPath();
+				ctx_4_magenta.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_4_magenta.fillStyle = 'magenta';
+				ctx_4_magenta.fill();
+				
+				canvas_4_orange = document.getElementById('player_4_orange');
+				let ctx_4_orange = canvas_4_orange.getContext('2d');
+				
+				ctx_4_orange.beginPath();
+				ctx_4_orange.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_4_orange.fillStyle = 'orange';
+				ctx_4_orange.fill();
+				
+				canvas_4_aqua = document.getElementById('player_4_aqua');
+				let ctx_4_aqua = canvas_4_aqua.getContext('2d');
+				
+				ctx_4_aqua.beginPath();
+				ctx_4_aqua.arc(15, 15, 15, 0, 2 * Math.PI);
+				ctx_4_aqua.fillStyle = 'aqua';
+				ctx_4_aqua.fill();
+				
+				canvas_1_blue.onclick = function() {
+					player_color_picker(1, 'b');
+				}
+				
+				canvas_1_magenta.onclick = function() {
+					player_color_picker(1, 'm');
+				}
+				
+				canvas_1_orange.onclick = function() {
+					player_color_picker(1, 'o');
+				}
+				
+				canvas_1_aqua.onclick = function() {
+					player_color_picker(1, 'a');
+				}
+				
+				canvas_2_blue.onclick = function() {
+					player_color_picker(2, 'b');
+				}
+				
+				canvas_2_magenta.onclick = function() {
+					player_color_picker(2, 'm');
+				}
+				
+				canvas_2_orange.onclick = function() {
+					player_color_picker(2, 'o');
+				}
+				
+				canvas_2_aqua.onclick = function() {
+					player_color_picker(2, 'a');
+				}
+				
+				canvas_3_blue.onclick = function() {
+					player_color_picker(3, 'b');
+				}
+				
+				canvas_3_magenta.onclick = function() {
+					player_color_picker(3, 'm');
+				}
+				
+				canvas_3_orange.onclick = function() {
+					player_color_picker(3, 'o');
+				}
+				
+				canvas_3_aqua.onclick = function() {
+					player_color_picker(3, 'a');
+				}
+				
+				canvas_4_blue.onclick = function() {
+					player_color_picker(4, 'b');
+				}
+				
+				canvas_4_magenta.onclick = function() {
+					player_color_picker(4, 'm');
+				}
+				
+				canvas_4_orange.onclick = function() {
+					player_color_picker(4, 'o');
+				}
+				
+				canvas_4_aqua.onclick = function() {
+					player_color_picker(4, 'a');
+				}
+				
+				canvas_1_blue.style.cursor = 'pointer';
+				canvas_1_magenta.style.cursor = 'pointer';
+				canvas_1_orange.style.cursor = 'pointer';
+				canvas_1_aqua.style.cursor = 'pointer';
+				
+				canvas_2_blue.style.cursor = 'pointer';
+				canvas_2_magenta.style.cursor = 'pointer';
+				canvas_2_orange.style.cursor = 'pointer';
+				canvas_2_aqua.style.cursor = 'pointer';
+				
+				canvas_3_blue.style.cursor = 'pointer';
+				canvas_3_magenta.style.cursor = 'pointer';
+				canvas_3_orange.style.cursor = 'pointer';
+				canvas_3_aqua.style.cursor = 'pointer';
+				
+				canvas_4_blue.style.cursor = 'pointer';
+				canvas_4_magenta.style.cursor = 'pointer';
+				canvas_4_orange.style.cursor = 'pointer';
+				canvas_4_aqua.style.cursor = 'pointer';
+				
+				let start_game_button = document.getElementById('start_game_button');
+				start_game_button.style.width = '10%';
+				start_game_button.style.fontSize = '25px';
+				start_game_button.style.cursor = 'pointer';
+				start_game_button.onclick = function() {
+					if((player_1_name.value.length > 1 && player_2_name.value.length > 1 && player_3_name.value.length > 1 && player_4_name.value.length > 1) && (sessionStorage.getItem('player_1_color').length > 0 && sessionStorage.getItem('player_2_color').length > 0 && sessionStorage.getItem('player_3_color').length > 0 && sessionStorage.getItem('player_4_color').length > 0)) {
+						let player_1_name = document.getElementById('player_1_name');
+						sessionStorage.setItem('player_1_name', player_1_name.value);
+						
+						let player_2_name = document.getElementById('player_2_name');
+						sessionStorage.setItem('player_2_name', player_2_name.value);
+						
+						let player_3_name = document.getElementById('player_3_name');
+						sessionStorage.setItem('player_3_name', player_3_name.value);
+						
+						let player_4_name = document.getElementById('player_4_name');
+						sessionStorage.setItem('player_4_name', player_4_name.value);
+						
+						document.body.innerHTML = '<div><canvas id="board" width="1300px" height="400px">Your browser does not support the HTML5 canvas tag.</canvas></div><br/><br/><br/><div align="center"><table width="10%"><tr align="center"><td><button onclick="return throw_a_dice()" id="dice_button">Rzuć kostką</button></td></tr><tr align="center"><td id="dice_number_place"></td></tr></table></div><hr/><div id="task_container"></div>';
+						document.getElementById('dice_button').style.cursor = 'pointer';
+						document.getElementById('dice_button').style.fontSize = '20px';
+						document.getElementById('dice_number_place').style.fontSize = '15px';
+						document.getElementById('dice_number_place').style.fontWeight = 'bolder';
+						game();
+						document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+					}
+					else {
+						alert('Nie wszystkie dane zostały podane!');
+					}
+				}
+			}
+			
+			function player_color_picker(x, y) {
+					if(x == 1) {
+						if(y == 'b' && sessionStorage.getItem('limit_b') == 0) {
+							if(sessionStorage.getItem('player_1_color') == 'magenta') {
+								player_color_depicker(1, 'm');
+							}
+							else if(sessionStorage.getItem('player_1_color') == 'orange') {
+								player_color_depicker(1, 'o');
+							}
+							else if(sessionStorage.getItem('player_1_color') == 'aqua') {
+								player_color_depicker(1, 'a');
+							}
+							
+							sessionStorage.setItem('player_1_color', 'blue');
+							canvas_1_blue.style.backgroundColor = 'gray';
+							
+							canvas_1_magenta.style.backgroundColor = 'transparent';
+							canvas_1_orange.style.backgroundColor = 'transparent';
+							canvas_1_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_b', 1);
+							
+							canvas_1_blue.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'm' && sessionStorage.getItem('limit_m') == 0) {
+							if(sessionStorage.getItem('player_1_color') == 'blue') {
+								player_color_depicker(1, 'b');
+							}
+							else if(sessionStorage.getItem('player_1_color') == 'orange') {
+								player_color_depicker(1, 'o');
+							}
+							else if(sessionStorage.getItem('player_1_color') == 'aqua') {
+								player_color_depicker(1, 'a');
+							}
+						
+							sessionStorage.setItem('player_1_color', 'magenta');
+							canvas_1_magenta.style.backgroundColor = 'gray';
+							
+							canvas_1_blue.style.backgroundColor = 'transparent';
+							canvas_1_orange.style.backgroundColor = 'transparent';
+							canvas_1_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_m', 1);
+							
+							canvas_1_magenta.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'o' && sessionStorage.getItem('limit_o') == 0) {
+							if(sessionStorage.getItem('player_1_color') == 'magenta') {
+								player_color_depicker(1, 'm');
+							}
+							else if(sessionStorage.getItem('player_1_color') == 'blue') {
+								player_color_depicker(1, 'b');
+							}
+							else if(sessionStorage.getItem('player_1_color') == 'aqua') {
+								player_color_depicker(1, 'a');
+							}
+						
+							sessionStorage.setItem('player_1_color', 'orange');
+							canvas_1_orange.style.backgroundColor = 'gray';
+							
+							canvas_1_magenta.style.backgroundColor = 'transparent';
+							canvas_1_blue.style.backgroundColor = 'transparent';
+							canvas_1_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_o', 1);
+							
+							canvas_1_orange.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'a' && sessionStorage.getItem('limit_a') == 0) {
+							if(sessionStorage.getItem('player_1_color') == 'blue') {
+								player_color_depicker(1, 'b');
+							}
+							else if(sessionStorage.getItem('player_1_color') == 'magenta') {
+								player_color_depicker(1, 'm');
+							}
+							else if(sessionStorage.getItem('player_1_color') == 'orange') {
+								player_color_depicker(1, 'o');
+							}
+						
+							sessionStorage.setItem('player_1_color', 'aqua');
+							canvas_1_aqua.style.backgroundColor = 'gray';
+							
+							canvas_1_blue.style.backgroundColor = 'transparent';
+							canvas_1_magenta.style.backgroundColor = 'transparent';
+							canvas_1_orange.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_a', 1);
+							
+							canvas_1_aqua.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+					}
+					else if(x == 2) {
+						if(y == 'b' && sessionStorage.getItem('limit_b') == 0) {
+							if(sessionStorage.getItem('player_2_color') == 'magenta') {
+								player_color_depicker(2, 'm');
+							}
+							else if(sessionStorage.getItem('player_2_color') == 'orange') {
+								player_color_depicker(2, 'o');
+							}
+							else if(sessionStorage.getItem('player_2_color') == 'aqua') {
+								player_color_depicker(2, 'a');
+							}
+						
+							sessionStorage.setItem('player_2_color', 'blue');
+							canvas_2_blue.style.backgroundColor = 'gray';
+							
+							canvas_2_magenta.style.backgroundColor = 'transparent';
+							canvas_2_orange.style.backgroundColor = 'transparent';
+							canvas_2_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_b', 1);
+							
+							canvas_2_blue.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'm' && sessionStorage.getItem('limit_m') == 0) {
+							if(sessionStorage.getItem('player_2_color') == 'blue') {
+								player_color_depicker(2, 'b');
+							}
+							else if(sessionStorage.getItem('player_2_color') == 'orange') {
+								player_color_depicker(2, 'o');
+							}
+							else if(sessionStorage.getItem('player_2_color') == 'aqua') {
+								player_color_depicker(2, 'a');
+							}
+						
+							sessionStorage.setItem('player_2_color', 'magenta');
+							canvas_2_magenta.style.backgroundColor = 'gray';
+							
+							canvas_2_blue.style.backgroundColor = 'transparent';
+							canvas_2_orange.style.backgroundColor = 'transparent';
+							canvas_2_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_m', 1);
+							
+							canvas_2_magenta.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'o' && sessionStorage.getItem('limit_o') == 0) {
+							if(sessionStorage.getItem('player_2_color') == 'magenta') {
+								player_color_depicker(2, 'm');
+							}
+							else if(sessionStorage.getItem('player_2_color') == 'blue') {
+								player_color_depicker(2, 'b');
+							}
+							else if(sessionStorage.getItem('player_2_color') == 'aqua') {
+								player_color_depicker(2, 'a');
+							}
+						
+							sessionStorage.setItem('player_2_color', 'orange');
+							canvas_2_orange.style.backgroundColor = 'gray';
+							
+							canvas_2_magenta.style.backgroundColor = 'transparent';
+							canvas_2_blue.style.backgroundColor = 'transparent';
+							canvas_2_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_o', 1);
+							
+							canvas_2_orange.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'a' && sessionStorage.getItem('limit_a') == 0) {
+							if(sessionStorage.getItem('player_2_color') == 'blue') {
+								player_color_depicker(2, 'b');
+							}
+							else if(sessionStorage.getItem('player_2_color') == 'magenta') {
+								player_color_depicker(2, 'm');
+							}
+							else if(sessionStorage.getItem('player_2_color') == 'orange') {
+								player_color_depicker(2, 'o');
+							}
+						
+							sessionStorage.setItem('player_2_color', 'aqua');
+							canvas_2_aqua.style.backgroundColor = 'gray';
+							
+							canvas_2_blue.style.backgroundColor = 'transparent';
+							canvas_2_magenta.style.backgroundColor = 'transparent';
+							canvas_2_orange.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_a', 1);
+							
+							canvas_2_aqua.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+					}
+					else if(x == 3) {
+						if(y == 'b' && sessionStorage.getItem('limit_b') == 0) {
+							if(sessionStorage.getItem('player_3_color') == 'magenta') {
+								player_color_depicker(3, 'm');
+							}
+							else if(sessionStorage.getItem('player_3_color') == 'orange') {
+								player_color_depicker(3, 'o');
+							}
+							else if(sessionStorage.getItem('player_3_color') == 'aqua') {
+								player_color_depicker(3, 'a');
+							}
+						
+							sessionStorage.setItem('player_3_color', 'blue');
+							canvas_3_blue.style.backgroundColor = 'gray';
+							
+							canvas_3_magenta.style.backgroundColor = 'transparent';
+							canvas_3_orange.style.backgroundColor = 'transparent';
+							canvas_3_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_b', 1);
+							
+							canvas_3_blue.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'm' && sessionStorage.getItem('limit_m') == 0) {
+							if(sessionStorage.getItem('player_3_color') == 'blue') {
+								player_color_depicker(3, 'b');
+							}
+							else if(sessionStorage.getItem('player_3_color') == 'orange') {
+								player_color_depicker(3, 'o');
+							}
+							else if(sessionStorage.getItem('player_3_color') == 'aqua') {
+								player_color_depicker(3, 'a');
+							}
+						
+							sessionStorage.setItem('player_3_color', 'magenta');
+							canvas_3_magenta.style.backgroundColor = 'gray';
+							
+							canvas_3_blue.style.backgroundColor = 'transparent';
+							canvas_3_orange.style.backgroundColor = 'transparent';
+							canvas_3_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_m', 1);
+							
+							canvas_3_magenta.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'o' && sessionStorage.getItem('limit_o') == 0) {
+							if(sessionStorage.getItem('player_3_color') == 'magenta') {
+								player_color_depicker(3, 'm');
+							}
+							else if(sessionStorage.getItem('player_3_color') == 'blue') {
+								player_color_depicker(3, 'b');
+							}
+							else if(sessionStorage.getItem('player_3_color') == 'aqua') {
+								player_color_depicker(3, 'a');
+							}
+						
+							sessionStorage.setItem('player_3_color', 'orange');
+							canvas_3_orange.style.backgroundColor = 'gray';
+							
+							canvas_3_magenta.style.backgroundColor = 'transparent';
+							canvas_3_blue.style.backgroundColor = 'transparent';
+							canvas_3_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_o', 1);
+							
+							canvas_3_orange.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'a' && sessionStorage.getItem('limit_a') == 0) {
+							if(sessionStorage.getItem('player_3_color') == 'blue') {
+								player_color_depicker(3, 'b');
+							}
+							else if(sessionStorage.getItem('player_3_color') == 'magenta') {
+								player_color_depicker(3, 'm');
+							}
+							else if(sessionStorage.getItem('player_3_color') == 'orange') {
+								player_color_depicker(3, 'o');
+							}
+						
+							sessionStorage.setItem('player_3_color', 'aqua');
+							canvas_3_aqua.style.backgroundColor = 'gray';
+							
+							canvas_3_blue.style.backgroundColor = 'transparent';
+							canvas_3_magenta.style.backgroundColor = 'transparent';
+							canvas_3_orange.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_a', 1);
+							
+							canvas_3_aqua.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+					}
+					else if(x == 4) {
+						if(y == 'b' && sessionStorage.getItem('limit_b') == 0) {
+							if(sessionStorage.getItem('player_4_color') == 'magenta') {
+								player_color_depicker(4, 'm');
+							}
+							else if(sessionStorage.getItem('player_4_color') == 'orange') {
+								player_color_depicker(4, 'o');
+							}
+							else if(sessionStorage.getItem('player_4_color') == 'aqua') {
+								player_color_depicker(4, 'a');
+							}
+						
+							sessionStorage.setItem('player_4_color', 'blue');
+							canvas_4_blue.style.backgroundColor = 'gray';
+							
+							canvas_4_magenta.style.backgroundColor = 'transparent';
+							canvas_4_orange.style.backgroundColor = 'transparent';
+							canvas_4_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_b', 1);
+							
+							canvas_4_blue.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'm' && sessionStorage.getItem('limit_m') == 0) {
+							if(sessionStorage.getItem('player_4_color') == 'blue') {
+								player_color_depicker(4, 'b');
+							}
+							else if(sessionStorage.getItem('player_4_color') == 'orange') {
+								player_color_depicker(4, 'o');
+							}
+							else if(sessionStorage.getItem('player_4_color') == 'aqua') {
+								player_color_depicker(4, 'a');
+							}
+						
+							sessionStorage.setItem('player_4_color', 'magenta');
+							canvas_4_magenta.style.backgroundColor = 'gray';
+							
+							canvas_4_blue.style.backgroundColor = 'transparent';
+							canvas_4_orange.style.backgroundColor = 'transparent';
+							canvas_4_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_m', 1);
+							
+							canvas_4_magenta.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'o' && sessionStorage.getItem('limit_o') == 0) {
+							if(sessionStorage.getItem('player_4_color') == 'magenta') {
+								player_color_depicker(4, 'm');
+							}
+							else if(sessionStorage.getItem('player_4_color') == 'blue') {
+								player_color_depicker(4, 'b');
+							}
+							else if(sessionStorage.getItem('player_4_color') == 'aqua') {
+								player_color_depicker(4, 'a');
+							}
+						
+							sessionStorage.setItem('player_4_color', 'orange');
+							canvas_4_orange.style.backgroundColor = 'gray';
+							
+							canvas_4_magenta.style.backgroundColor = 'transparent';
+							canvas_4_blue.style.backgroundColor = 'transparent';
+							canvas_4_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_o', 1);
+							
+							canvas_4_orange.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+						else if(y == 'a' && sessionStorage.getItem('limit_a') == 0) {
+							if(sessionStorage.getItem('player_4_color') == 'blue') {
+								player_color_depicker(4, 'b');
+							}
+							else if(sessionStorage.getItem('player_4_color') == 'magenta') {
+								player_color_depicker(4, 'm');
+							}
+							else if(sessionStorage.getItem('player_4_color') == 'orange') {
+								player_color_depicker(4, 'o');
+							}
+						
+							sessionStorage.setItem('player_4_color', 'aqua');
+							canvas_4_aqua.style.backgroundColor = 'gray';
+							
+							canvas_4_blue.style.backgroundColor = 'transparent';
+							canvas_4_magenta.style.backgroundColor = 'transparent';
+							canvas_4_orange.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_a', 1);
+							
+							canvas_4_aqua.onclick = function() {
+								player_color_depicker(x, y);
+							}
+						}
+					}
+				}
+				
+				function player_color_depicker(x, y) {
+					if(x == 1) {
+						if(y == 'b') {
+							sessionStorage.removeItem('player_1_color');
+							canvas_1_blue.style.backgroundColor = 'transparent';
+							
+							canvas_1_magenta.style.backgroundColor = 'transparent';
+							canvas_1_orange.style.backgroundColor = 'transparent';
+							canvas_1_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_b', 0);
+							
+							canvas_1_blue.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'm') {
+							sessionStorage.removeItem('player_1_color');
+							canvas_1_magenta.style.backgroundColor = 'transparent';
+							
+							canvas_1_blue.style.backgroundColor = 'transparent';
+							canvas_1_orange.style.backgroundColor = 'transparent';
+							canvas_1_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_m', 0);
+							
+							canvas_1_magenta.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'o') {
+							sessionStorage.removeItem('player_1_color');
+							canvas_1_orange.style.backgroundColor = 'transparent';
+							
+							canvas_1_magenta.style.backgroundColor = 'transparent';
+							canvas_1_blue.style.backgroundColor = 'transparent';
+							canvas_1_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_o', 0);
+							
+							canvas_1_orange.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'a') {
+							sessionStorage.removeItem('player_1_color');
+							canvas_1_aqua.style.backgroundColor = 'transparent';
+							
+							canvas_1_blue.style.backgroundColor = 'transparent';
+							canvas_1_magenta.style.backgroundColor = 'transparent';
+							canvas_1_orange.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_a', 0);
+							
+							canvas_1_aqua.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+					}
+					else if(x == 2) {
+						if(y == 'b') {
+							sessionStorage.removeItem('player_2_color');
+							canvas_2_blue.style.backgroundColor = 'transparent';
+							
+							canvas_2_magenta.style.backgroundColor = 'transparent';
+							canvas_2_orange.style.backgroundColor = 'transparent';
+							canvas_2_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_b', 0);
+							
+							canvas_2_blue.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'm') {
+							sessionStorage.removeItem('player_2_color');
+							canvas_2_magenta.style.backgroundColor = 'transparent';
+							
+							canvas_2_blue.style.backgroundColor = 'transparent';
+							canvas_2_orange.style.backgroundColor = 'transparent';
+							canvas_2_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_m', 0);
+							
+							canvas_2_magenta.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'o') {
+							sessionStorage.removeItem('player_2_color');
+							canvas_2_orange.style.backgroundColor = 'transparent';
+							
+							canvas_2_magenta.style.backgroundColor = 'transparent';
+							canvas_2_blue.style.backgroundColor = 'transparent';
+							canvas_2_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_o', 0);
+							
+							canvas_2_orange.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'a') {
+							sessionStorage.removeItem('player_2_color');
+							canvas_2_aqua.style.backgroundColor = 'transparent';
+							
+							canvas_2_blue.style.backgroundColor = 'transparent';
+							canvas_2_magenta.style.backgroundColor = 'transparent';
+							canvas_2_orange.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_a', 0);
+							
+							canvas_2_aqua.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+					}
+					if(x == 3) {
+						if(y == 'b') {
+							sessionStorage.removeItem('player_3_color');
+							canvas_3_blue.style.backgroundColor = 'transparent';
+							
+							canvas_3_magenta.style.backgroundColor = 'transparent';
+							canvas_3_orange.style.backgroundColor = 'transparent';
+							canvas_3_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_b', 0);
+							
+							canvas_3_blue.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'm') {
+							sessionStorage.removeItem('player_3_color');
+							canvas_3_magenta.style.backgroundColor = 'transparent';
+							
+							canvas_3_blue.style.backgroundColor = 'transparent';
+							canvas_3_orange.style.backgroundColor = 'transparent';
+							canvas_3_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_m', 0);
+							
+							canvas_3_magenta.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'o') {
+							sessionStorage.removeItem('player_3_color');
+							canvas_3_orange.style.backgroundColor = 'transparent';
+							
+							canvas_3_magenta.style.backgroundColor = 'transparent';
+							canvas_3_blue.style.backgroundColor = 'transparent';
+							canvas_3_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_o', 0);
+							
+							canvas_3_orange.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'a') {
+							sessionStorage.removeItem('player_3_color');
+							canvas_3_aqua.style.backgroundColor = 'transparent';
+							
+							canvas_3_blue.style.backgroundColor = 'transparent';
+							canvas_3_magenta.style.backgroundColor = 'transparent';
+							canvas_3_orange.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_a', 0);
+							
+							canvas_3_aqua.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+					}
+					if(x == 4) {
+						if(y == 'b') {
+							sessionStorage.removeItem('player_4_color');
+							canvas_4_blue.style.backgroundColor = 'transparent';
+							
+							canvas_4_magenta.style.backgroundColor = 'transparent';
+							canvas_4_orange.style.backgroundColor = 'transparent';
+							canvas_4_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_b', 0);
+							
+							canvas_4_blue.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'm') {
+							sessionStorage.removeItem('player_4_color');
+							canvas_4_magenta.style.backgroundColor = 'transparent';
+							
+							canvas_4_blue.style.backgroundColor = 'transparent';
+							canvas_4_orange.style.backgroundColor = 'transparent';
+							canvas_4_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_m', 0);
+							
+							canvas_4_magenta.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'o') {
+							sessionStorage.removeItem('player_4_color');
+							canvas_4_orange.style.backgroundColor = 'transparent';
+							
+							canvas_4_magenta.style.backgroundColor = 'transparent';
+							canvas_4_blue.style.backgroundColor = 'transparent';
+							canvas_4_aqua.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_o', 0);
+							
+							canvas_4_orange.onclick = function() {
+								player_color_picker(x, y);
+							}
+						}
+						else if(y == 'a') {
+							sessionStorage.removeItem('player_4_color');
+							canvas_4_aqua.style.backgroundColor = 'transparent';
+							
+							canvas_4_blue.style.backgroundColor = 'transparent';
+							canvas_4_magenta.style.backgroundColor = 'transparent';
+							canvas_4_orange.style.backgroundColor = 'transparent';
+							
+							sessionStorage.setItem('limit_a', 0);
+							
+							canvas_4_aqua.onclick = function() {
+							player_color_picker(x, y);
+						}
+					}
+				}
+			}
+		}
+		
+		function throw_a_dice() {
+			document.getElementById('dice_button').onclick = function() {};
+			document.getElementById('dice_button').style.cursor = 'default';
+		
+			let time = new Date();
+			
+			let dice_number = (Math.round((Math.random() * time.getSeconds() * time.getMilliseconds())) % 6) + 1;
+			sessionStorage.setItem('dice_number', dice_number);
+			
+			document.getElementById('dice_number_place').innerText = 'Gracz ' + players_names[sessionStorage.getItem('player_turn') - 1] + ' wylosował ' + sessionStorage.getItem('dice_number') + '!';
+			
+			move(dice_number, sessionStorage.getItem('number_of_players'));
+		}
+		
+		function move(x, y) {
+			let max_x_p;
+			let max_y_p;
+			let max_x_m;
+			let max_y_m;
+			let max_range;
+			let travelled_distance = 0;
+			let turn;
+			
+			if(y == 2) {
+				if(sessionStorage.getItem('player_turn') == 1) {
+					max_x_p = p_1_position_x + (50 * x);
+					max_y_p = p_1_position_y + (50 * x);
+					max_x_m = p_1_position_x - (50 * x);
+					max_y_m = p_1_position_y - (50 * x);
+					max_range = 50 * x;
+					turn = 1;
+					sessionStorage.setItem('player_turn', 2);
+				}
+				else if(sessionStorage.getItem('player_turn') == 2) {
+					max_x_p = p_2_position_x + (50 * x);
+					max_y_p = p_2_position_y + (50 * x);
+					max_x_m = p_2_position_x - (50 * x);
+					max_y_m = p_2_position_y - (50 * x);
+					max_range = 50 * x;
+					turn = 2;
+					sessionStorage.setItem('player_turn', 1);
+				}
+			}
+			else if(y == 3) {
+				if(sessionStorage.getItem('player_turn') == 1) {
+					max_x_p = p_1_position_x + (50 * x);
+					max_y_p = p_1_position_y + (50 * x);
+					max_x_m = p_1_position_x - (50 * x);
+					max_y_m = p_1_position_y - (50 * x);
+					max_range = 50 * x;
+					turn = 1;
+					sessionStorage.setItem('player_turn', 2);
+				}
+				else if(sessionStorage.getItem('player_turn') == 2) {
+					max_x_p = p_2_position_x + (50 * x);
+					max_y_p = p_2_position_y + (50 * x);
+					max_x_m = p_2_position_x - (50 * x);
+					max_y_m = p_2_position_y - (50 * x);
+					max_range = 50 * x;
+					turn = 2;
+					sessionStorage.setItem('player_turn', 3);
+				}
+				else if(sessionStorage.getItem('player_turn') == 3) {
+					max_x_p = p_3_position_x + (50 * x);
+					max_y_p = p_3_position_y + (50 * x);
+					max_x_m = p_3_position_x - (50 * x);
+					max_y_m = p_3_position_y - (50 * x);
+					max_range = 50 * x;
+					turn = 3;
+					sessionStorage.setItem('player_turn', 1);
+				}
+			}
+			else if(y == 4) {
+				if(sessionStorage.getItem('player_turn') == 1) {
+					max_x_p = p_1_position_x + (50 * x);
+					max_y_p = p_1_position_y + (50 * x);
+					max_x_m = p_1_position_x - (50 * x);
+					max_y_m = p_1_position_y - (50 * x);
+					max_range = 50 * x;
+					turn = 1;
+					sessionStorage.setItem('player_turn', 2);
+				}
+				else if(sessionStorage.getItem('player_turn') == 2) {
+					max_x_p = p_2_position_x + (50 * x);
+					max_y_p = p_2_position_y + (50 * x);
+					max_x_m = p_2_position_x - (50 * x);
+					max_y_m = p_2_position_y - (50 * x);
+					max_range = 50 * x;
+					turn = 2;
+					sessionStorage.setItem('player_turn', 3);
+				}
+				else if(sessionStorage.getItem('player_turn') == 3) {
+					max_x_p = p_3_position_x + (50 * x);
+					max_y_p = p_3_position_y + (50 * x);
+					max_x_m = p_3_position_x - (50 * x);
+					max_y_m = p_3_position_y - (50 * x);
+					max_range = 50 * x;
+					turn = 3;
+					sessionStorage.setItem('player_turn', 4);
+				}
+				else if(sessionStorage.getItem('player_turn') == 4) {
+					max_x_p = p_4_position_x + (50 * x);
+					max_y_p = p_4_position_y + (50 * x);
+					max_x_m = p_4_position_x - (50 * x);
+					max_y_m = p_4_position_y - (50 * x);
+					max_range = 50 * x;
+					turn = 4;
+					sessionStorage.setItem('player_turn', 1);
+				}
+			}
+			
+			make_a_move();
+			
+			function make_a_move() {
+				if(turn == 1) {
+					if(p_1_position_y + 37.5 < 400 && sessionStorage.getItem('p_1_side') == 'down') {
+						if(p_1_position_y < max_y_p) {
+							context_b.clearRect(0, 0, 1300, 400);
+							context_b.putImageData(canvas_content, 0, 0);
+							
+							p_1_position_y += 5;
+							travelled_distance += 5;
+							
+							draw_players(sessionStorage.getItem('number_of_players'));
+							window.requestAnimationFrame(make_a_move);
+						}
+					}
+					else if(p_1_position_y + 37.5 == 400 && sessionStorage.getItem('p_1_side') == 'down') {
+						base(1, 1);
+					}
+					
+					if(p_1_position_x + 37.5 < 1300 && sessionStorage.getItem('p_1_side') == 'right') {
+						if(p_1_position_x < max_x_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_1_position_x += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					else if(p_1_position_x + 37.5 == 1300 && sessionStorage.getItem('p_1_side') == 'right') {
+						base(2, 1);
+					}
+					
+					if(p_1_position_y - 12.5 > 0 && sessionStorage.getItem('p_1_side') == 'up') {
+						if(p_1_position_y > max_y_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_1_position_y -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					else if(p_1_position_y - 12.5 == 0 && sessionStorage.getItem('p_1_side') == 'up') {
+						base(3, 1);
+					}
+					
+					if(p_1_position_x - 12.5 > 0 && sessionStorage.getItem('p_1_side') == 'left') {
+						if(p_1_position_x > max_x_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_1_position_x -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					
+					if(p_1_position_x - 12.5 == 0 && p_1_position_y - 12.5 == 0 && travelled_distance > 0) {
+						end_game(1);
+					}
+				}
+				else if(turn == 2) {
+					if(p_2_position_y + 37.5 < 400 && sessionStorage.getItem('p_2_side') == 'down') {
+						if(p_2_position_y < max_y_p) {
+							context_b.clearRect(0, 0, 1300, 400);
+							context_b.putImageData(canvas_content, 0, 0);
+							
+							p_2_position_y += 5;
+							travelled_distance += 5;
+							
+							draw_players(sessionStorage.getItem('number_of_players'));
+							
+							window.requestAnimationFrame(make_a_move);
+						}
+					}
+					else if(p_2_position_y + 37.5 == 400 && sessionStorage.getItem('p_2_side') == 'down') {
+						base(1, 2);
+					}
+					
+					if(p_2_position_x + 12.5 < 1300 && sessionStorage.getItem('p_2_side') == 'right') {
+						if(p_2_position_x < max_x_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_2_position_x += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					else if(p_2_position_x + 12.5 == 1300 && sessionStorage.getItem('p_2_side') == 'right') {
+						base(2, 2);
+					}
+					
+					if(p_2_position_y - 12.5 > 0 && sessionStorage.getItem('p_2_side') == 'up') {
+						if(p_2_position_y > max_y_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_2_position_y -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					else if(p_2_position_y - 12.5 == 0 && sessionStorage.getItem('p_2_side') == 'up') {
+						base(3, 2);
+					}
+					
+					if(p_2_position_x - 37.5 > 0 && sessionStorage.getItem('p_2_side') == 'left') {
+						if(p_2_position_x > max_x_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_2_position_x -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					
+					if(p_2_position_x - 37.5 == 0 && p_2_position_y - 12.5 == 0 && travelled_distance > 0) {
+						end_game(2);
+					}
+				}
+				else if(turn == 3) {
+					if(p_3_position_y + 12.5 < 400 && sessionStorage.getItem('p_3_side') == 'down') {
+						if(p_3_position_y < max_y_p) {
+							context_b.clearRect(0, 0, 1300, 400);
+							context_b.putImageData(canvas_content, 0, 0);
+							
+							p_3_position_y += 5;
+							travelled_distance += 5;
+							
+							draw_players(sessionStorage.getItem('number_of_players'));
+							
+							window.requestAnimationFrame(make_a_move);
+						}
+					}
+					else if(p_3_position_y + 12.5 == 400 && sessionStorage.getItem('p_3_side') == 'down') {
+						base(1, 3);
+					}
+					
+					if(p_3_position_x + 37.5 < 1300 && sessionStorage.getItem('p_3_side') == 'right') {
+						if(p_3_position_x < max_x_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_3_position_x += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					else if(p_3_position_x + 37.5 == 1300 && sessionStorage.getItem('p_3_side') == 'right') {
+						base(2, 3);
+					}
+					
+					if(p_3_position_y - 37.5 > 0 && sessionStorage.getItem('p_3_side') == 'up') {
+						if(p_3_position_y > max_y_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_3_position_y -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					else if(p_3_position_y - 37.5 == 0 && sessionStorage.getItem('p_3_side') == 'up') {
+						base(3, 3);
+					}
+					
+					if(p_3_position_x - 12.5 > 0 && sessionStorage.getItem('p_3_side') == 'left') {
+						if(p_3_position_x > max_x_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_3_position_x -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					
+					if(p_3_position_x - 12.5 == 0 && p_3_position_y - 12.5 == 0 && travelled_distance > 0) {
+						end_game(3);
+					}
+				}
+				else if(turn == 4) {
+					if(p_4_position_y + 12.5 < 400 && sessionStorage.getItem('p_4_side') == 'down') {
+						if(p_4_position_y < max_y_p) {
+							context_b.clearRect(0, 0, 1300, 400);
+							context_b.putImageData(canvas_content, 0, 0);
+							
+							p_4_position_y += 5;
+							travelled_distance += 5;
+							
+							draw_players(sessionStorage.getItem('number_of_players'));
+							
+							window.requestAnimationFrame(make_a_move);
+						}
+					}
+					else if(p_4_position_y + 12.5 == 400 && sessionStorage.getItem('p_4_side') == 'down') {
+						base(1, 4);
+					}
+					
+					if(p_4_position_x + 12.5 < 1300 && sessionStorage.getItem('p_4_side') == 'right') {
+						if(p_4_position_x < max_x_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_4_position_x += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					else if(p_4_position_x + 12.5 == 1300 && sessionStorage.getItem('p_4_side') == 'right') {
+						base(2, 4);
+					}
+					
+					if(p_4_position_y - 37.5 > 0 && sessionStorage.getItem('p_4_side') == 'up') {
+						if(p_4_position_y > max_y_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_4_position_y -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					else if(p_4_position_y - 37.5 == 0 && sessionStorage.getItem('p_4_side') == 'up') {
+						base(3, 4);
+					}
+					
+					if(p_4_position_x - 37.5 > 0 && sessionStorage.getItem('p_4_side') == 'left') {
+						if(p_4_position_x > max_x_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_4_position_x -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move);
+							}
+						}
+					}
+					
+					if(p_4_position_x - 37.5 == 0 && p_4_position_y - 37.5 == 0 && travelled_distance > 0) {
+						end_game(4);
+					}
+				}
+				
+				check_space_color(turn);
+			}
+			
+			function base(x, y) {
+				if(y == 1) {
+					if(x == 1) {
+						sessionStorage.setItem('p_1_side', 'right');
+					}
+					else if(x == 2) {
+						sessionStorage.setItem('p_1_side', 'up');
+					}
+					else if(x == 3) {
+						sessionStorage.setItem('p_1_side', 'left');
+					}
+					else if(x == 0) {
+						sessionStorage.setItem('p_1_side', 'stop');
+					}
+				}
+				else if(y == 2) {
+					if(x == 1) {
+						sessionStorage.setItem('p_2_side', 'right');
+					}
+					else if(x == 2) {
+						sessionStorage.setItem('p_2_side', 'up');
+					}
+					else if(x == 3) {
+						sessionStorage.setItem('p_2_side', 'left');
+					}
+					else if(x == 0) {
+						sessionStorage.setItem('p_2_side', 'stop');
+					}
+				}
+				else if(y == 3) {
+					if(x == 1) {
+						sessionStorage.setItem('p_3_side', 'right');
+					}
+					else if(x == 2) {
+						sessionStorage.setItem('p_3_side', 'up');
+					}
+					else if(x == 3) {
+						sessionStorage.setItem('p_3_side', 'left');
+					}
+					else if(x == 0) {
+						sessionStorage.setItem('p_3_side', 'stop');
+					}
+				}
+				else if(y == 4) {
+					if(x == 1) {
+						sessionStorage.setItem('p_4_side', 'right');
+					}
+					else if(x == 2) {
+						sessionStorage.setItem('p_4_side', 'up');
+					}
+					else if(x == 3) {
+						sessionStorage.setItem('p_4_side', 'left');
+					}
+					else if(x == 0) {
+						sessionStorage.setItem('p_4_side', 'stop');
+					}
+				}
+			}
+			
+			function check_space_color(x) {
+				if(x == 1) {
+					if(travelled_distance - max_range == 0) {
+						let check = context_b.getImageData(p_1_position_x + 11, p_1_position_y + 11, 1, 1).data;
+						
+						if(check[0] == 0 && check[1] == 128 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							
+							document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+						
+							document.getElementById('dice_button').style.cursor = 'pointer';
+							document.getElementById('dice_button').onclick = function() {
+								throw_a_dice();
+							}
+						}
+						else if(check[0] == 255 && check[1] == 255 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							task('y');
+						}
+						else if(check[0] == 255 && check[1] == 0 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							task('r');
+						}
+					}
+				}
+				if(x == 2) {
+					if(travelled_distance - max_range == 0) {
+						let check = context_b.getImageData(p_2_position_x + 11, p_2_position_y + 11, 1, 1).data;
+						
+						if(check[0] == 0 && check[1] == 128 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							
+							document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+						
+							document.getElementById('dice_button').style.cursor = 'pointer';
+							document.getElementById('dice_button').onclick = function() {
+								throw_a_dice();
+							}
+						}
+						else if(check[0] == 255 && check[1] == 255 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							task('y');
+						}
+						else if(check[0] == 255 && check[1] == 0 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							task('r');
+						}
+					}
+				}
+				if(x == 3) {
+					if(travelled_distance - max_range == 0) {
+						let check = context_b.getImageData(p_3_position_x + 11, p_3_position_y + 11, 1, 1).data;
+						
+						if(check[0] == 0 && check[1] == 128 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							
+							document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+						
+							document.getElementById('dice_button').style.cursor = 'pointer';
+							document.getElementById('dice_button').onclick = function() {
+								throw_a_dice();
+							}
+
+						}
+						else if(check[0] == 255 && check[1] == 255 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							task('y');
+						}
+						else if(check[0] == 255 && check[1] == 0 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							task('r');
+						}
+					}
+				}
+				if(x == 4) {
+					if(travelled_distance - max_range == 0) {
+						let check = context_b.getImageData(p_4_position_x + 11, p_4_position_y + 11, 1, 1).data;
+						
+						if(check[0] == 0 && check[1] == 128 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							
+							document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+						
+							document.getElementById('dice_button').style.cursor = 'pointer';
+							document.getElementById('dice_button').onclick = function() {
+								throw_a_dice();
+							}
+
+						}
+						else if(check[0] == 255 && check[1] == 255 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							task('y');
+						}
+						else if(check[0] == 255 && check[1] == 0 && check[2] == 0 && check[3] == 255) {
+							max_range = 0;
+							task('r');
+						}
+					}
+				}
+			}
+			
+			function end_game(x) {
+				p_1_position_x = 12.5;
+				p_1_position_y = 12.5;
+				
+				p_2_position_x = 37.5;
+				p_2_position_y = 12.5;
+				
+				p_3_position_x = 12.5;
+				p_3_position_y = 37.5;
+				
+				p_4_position_x = 37.5;
+				p_4_position_y = 37.5;
+				
+				sessionStorage.setItem('player_turn', 1);
+			
+				document.getElementById('dice_button').onclick = function() {};
+				document.getElementById('dice_button').style.cursor = 'default';
+				max_x_p = 0;
+				max_y_p = 0;
+				max_x_m = 0;
+				max_y_m = 0;
+				travelled_distance = 0;
+				alert('Wygrał gracz ' + players_names[x - 1] + '! Gratulacje za zdobycie Excalibura!');
+				
+				let exit_game = confirm('Czy chcesz zagrać ponownie?');
+				if(exit_game) {
+					document.body.innerHTML = '<div><canvas id="board" width="1300px" height="400px">Your browser does not support the HTML5 canvas tag.</canvas></div><br/><br/><br/><div align="center"><table width="10%"><tr align="center"><td><button onclick="return throw_a_dice()" id="dice_button">Rzuć kostką</button></td></tr><tr align="center"><td id="dice_number_place"></td></tr></table></div><hr/><div id="task_container"></div>';
+					document.getElementById('dice_button').style.cursor = 'pointer';
+					document.getElementById('dice_button').style.fontSize = '20px';
+					document.getElementById('dice_number_place').style.fontSize = '15px';
+					document.getElementById('dice_number_place').style.fontWeight = 'bolder';
+					game();
+					document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+				}
+				else {
+					document.body.outerHTML = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Excalibur' + apostrophe + 's Journey</title><style>body {background-color: lightGray;}#game_title {text-shadow: 2px 2px blue;}.buttons {font-size: 25px;width: 10%;}.buttons:hover {cursor: pointer;}</style></head><body><div id="game_title" align="center"><big><big><h1>Excalibur' + apostrophe + 's Journey</h1></big></big></div><br/><br/><br/><br/><br/><br/><br/><br/><div align="center"><button class="buttons" id="user_manual" onclick="user_manual_page()">Instrukcja</button><br/><br/><br/><button class="buttons" id="play" onclick="choose_number_of_players()">Zagraj</button></div></body>';
+					
+					sessionStorage.clear();
+				}
+			}
+		}
+		
+		function user_manual_page() {
+			document.body.innerHTML = '<div id="user_manual_body"><div align="center"><h1>Zasady</h1></div><div><h2>Zwyciężca</h2>Wygrywa gracz, który jako pierwszy okrąży całą planszę i wróci na pole Start (zdobędzie Excalibur).<br/><br/><b><big>===</big></b><br/><h2>Kolejność rzucania kostką</h2>Jako pierwszy kostką rzuca gracz 1, następnie po nim rzuca gracz 2, gracz 3 oraz gracz 4 (w zależnośći od wyboru ilości graczy). Po rzucie ostatniego z graczy kolejka wraca do gracza 1<br/><br/><b><big>===</big></b><br/><h2>Podczas tury gracza</h2>Kiedy nadejdzie kolej gracza, gracz ten musi rzucić kostką, po czym jego pionek przesunie się o wyznaczoną ilość pól. Kiedy gracz nadepnie na pole danego koloru, zostanie wywołana konkretna akcja.<br/><br/><b><big>===</big></b><br/><h2>Kolory pól</h2>Na planszy są trzy rodzaje kolorów:<br/>>)&nbsp zielony<br/>>)&nbsp żółty<br/>>)&nbsp czerwony<br/>Kiedy gracz stanie na pole koloru zielonego, jest bezpieczny (może rozłożyć obóz i odpocząć), czyli zostaje na tym polu, na którym jest, a kolejka przechodzi do następnego gracza. Po stanięciu na pole żółte gracz musi albo wykonać podane zadanie, albo ponownie rzucić kostką. W zależności od wyniku którejś z tych akcji, gracz albo sprosta wyzwaniu postawionemu na jego drodze i dostanie zasłużony odpoczynek, albo cofnie się o konkretną ilość pól. Kiedy gracz znajdzie się na polu koloru czerwonego, stanie naprzeciw wyzwaniu, któremu nie da rady sprostać, co spowoduje jego cofnięcie się o wyznaczoną ilość pól.</div><div align="center"><br/><button onclick="return_to_main_page()" id="return_button">Powrót</button></div></div>';
+			document.getElementById('user_manual_body').style.fontSize = '25px';
+			document.getElementById('return_button').style.cursor = 'pointer';
+			document.getElementById('return_button').style.fontSize = '25px';
+			document.getElementById('return_button').style.width = '10%';
+			document.getElementById('return_button').onclick = function() {
+				document.body.outerHTML = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Excalibur' + apostrophe + 's Journey</title><style>body {background-color: lightGray;}#game_title {text-shadow: 2px 2px blue;}.buttons {font-size: 25px;width: 10%;}.buttons:hover {cursor: pointer;}</style></head><body><div id="game_title" align="center"><big><big><h1>Excalibur' + apostrophe + 's Journey</h1></big></big></div><br/><br/><br/><br/><br/><br/><br/><br/><div align="center"><button class="buttons" id="user_manual" onclick="user_manual_page()">Instrukcja</button><br/><br/><br/><button class="buttons" id="play" onclick="choose_number_of_players()">Zagraj</button></div></body>';
+			}
+		}
+		
+		function task(x) {
+			document.getElementById('dice_button').onclick = function() {};
+			document.getElementById('dice_button').style.cursor = 'default';
+		
+			let yellow_tasks = [witches_dice(), witches_song(), bandits_rhyme(), pirates(), orcs_dice(), orcs_jokes(), bear()];
+			let red_tasks = [dragon(), storm(), golem(), fire_salamander(), swamps()];
+			
+			let time = new Date();
+			let task_number;
+			if(x == 'y') {
+				task_number = Math.round((Math.random() * time.getSeconds() * time.getMilliseconds())) % (yellow_tasks.length);
+			}
+			else {
+				task_number = Math.round((Math.random() * time.getSeconds() * time.getMilliseconds())) % (red_tasks.length);
+			}
+		
+			if(x == 'y') {
+				if(task_number == 0) {
+					witches_dice();
+				}
+				else if(task_number == 1) {
+					witches_song();
+				}
+				else if(task_number == 2) {
+					bandits_rhyme();
+				}
+				else if(task_number == 3) {
+					pirates();
+				}
+				else if(task_number == 4) {
+					orcs_dice();
+				}
+				else if(task_number == 5) {
+					orcs_jokes();
+				}
+				else if(task_number == 6) {
+					bear();
+				}
+			}
+			else {
+				if(task_number == 0) {
+					dragon();
+				}
+				else if(task_number == 1) {
+					storm();
+				}
+				else if(task_number == 2) {
+					golem();
+				}
+				else if(task_number == 3) {
+					fire_salamander();
+				}
+				else if(task_number == 4) {
+					swamps();
+				}
+			}
+			
+			function witches_dice() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Spotkałeś/-aś trzy wiedźmy, które chcą cię wykorzystać w robieniu swojej mikstury!</div><div align="center" id="dice_task_place"><p id="dice_task_description">Rzuć kostką. Jeśli wyrzucisz liczbę parzystą, to pokonasz wiedźmy, ale jeśli wyrzucisz liczbę nieparzystą, wiedźmy cię pochwycą.</p><button id="dice_button_task">Rzuć kostką</button><p id="dice_number_task"></p></div><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+			
+				document.getElementById('dice_button_task').style.cursor = 'pointer';
+				document.getElementById('dice_button_task').style.width = '12%';
+				document.getElementById('dice_button_task').style.fontSize = '25px';
+				document.getElementById('dice_button_task').onclick = function() {
+					throw_a_dice_task('witches');
+				}
+			}
+			
+			function throw_a_dice_task(x) {
+				let dice_number_task = (Math.round((Math.random() * time.getSeconds() * time.getMilliseconds())) % 6) + 1;
+				let number_characteristic;
+				let result;
+				let result_number;
+				if(dice_number_task % 2 == 0 && x == 'witches') {
+					number_characteristic = 'liczba parzysta';
+						result = 'Pokonałeś/-aś wiedźmy, dzięki czemu możesz kontynuować swoją podróż!';
+						result_number = 0;
+						document.getElementById('dice_button_task').onclick = function() {};
+						document.getElementById('dice_button_task').style.cursor = 'default';
+				}
+				else if((dice_number_task == 1 || dice_number_task == 2 || dice_number_task == 3) && x == 'orcs') {
+						number_characteristic = 'liczba z zakresu 1-3';
+						result = 'Udało ci się uciecz przed szałem orków, dzięki czemu możesz kontynuować swoją podróż w spokoju!';
+						result_number = 0;
+						document.getElementById('dice_button_task').onclick = function() {};
+						document.getElementById('dice_button_task').style.cursor = 'default';
+					}
+				else if(dice_number_task % 2 == 1 && x == 'witches'){
+					number_characteristic = 'liczba nieparzysta';
+						result = 'Nie pokonałeś/-aś wiedźm. Uwięziły cię w klatce i poszły szykować resztę składników na miksturę. Uciekłeś/-aś z klatki dopiero po kilku godzinach, co opóźniło twoją podróż. (w efekcie cofasz się o 3 pola)';
+						result_number = 1;
+						document.getElementById('dice_button_task').onclick = function() {};
+						document.getElementById('dice_button_task').style.cursor = 'default';
+				}
+				else if((dice_number_task == 4 || dice_number_task == 5 || dice_number_task == 6) && x == 'orcs') {
+						number_characteristic = 'liczba z zakresu 4-6';
+						result = 'Nie udało ci się uciec od orków, którzy znani są ze swojej agresywnej natury. W swoim szale poważnie cię poranili, przez co musiałeś/-aś spędzić wiele dni na leczeniu. (w efekcie cofasz się o 6 pól)';
+						result_number = 1;
+						document.getElementById('dice_button_task').onclick = function() {};
+						document.getElementById('dice_button_task').style.cursor = 'default';
+					}
+				
+				if(sessionStorage.getItem('player_turn') != 1) {
+					document.getElementById('dice_number_task').innerText = players_names[sessionStorage.getItem('player_turn') - 2] + ', wyrzuciłeś/-aś ' + dice_number_task + ' (' + number_characteristic + ')!';
+				}
+				else {
+					if(sessionStorage.getItem('number_of_players') == 2) {
+						document.getElementById('dice_number_task').innerText = players_names[1] + ', wyrzuciłeś/-aś ' + dice_number_task + ' (' + number_characteristic + ')!';
+					}
+					else if(sessionStorage.getItem('number_of_players') == 3) {
+						document.getElementById('dice_number_task').innerText = players_names[2] + ', wyrzuciłeś/-aś ' + dice_number_task + ' (' + number_characteristic + ')!';
+					}
+					else if(sessionStorage.getItem('number_of_players') == 4) {
+						document.getElementById('dice_number_task').innerText = players_names[3] + ', wyrzuciłeś/-aś ' + dice_number_task + ' (' + number_characteristic + ')!';
+					}
+				}
+				document.getElementById('task_result').innerText = result;
+				
+				document.getElementById('task_result').innerHTML = document.getElementById('task_result').innerHTML + '<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				document.getElementById('return_button_task').style.cursor = 'pointer';
+				document.getElementById('return_button_task').style.width = '12%';
+				document.getElementById('return_button_task').style.fontSize = '25px';
+				document.getElementById('return_button_task').onclick = function() {
+					document.getElementById('dice_button').style.cursor = 'pointer';
+					document.getElementById('dice_button').onclick = function() {
+						throw_a_dice();
+					}
+					
+					document.getElementById('task_container').innerHTML = '';
+					if(result_number == 1) {
+						if(x == 'witches') {
+							move_backwards(3, sessionStorage.getItem('number_of_players'));
+						}
+						else if(x == 'orcs') {
+							move_backwards(6, sessionStorage.getItem('number_of_players'));
+						}
+					}
+					else {
+						document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+					}
+				}
+			}
+			
+			function witches_song() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Spotkałeś/-aś trzy wiedźmy, które chcą cię wykorzystać w robieniu swojej mikstury!</div><div align="center" id="task_place"><p id="task_description">Zaśpiewaj fragment piosenki, którą wybierze ci osoba siedząca po twojej prawej stronie (jeśli nikt tam nie siedzi, to wybiera osoba, która będzie ruszała po tobie). Jeśli się uda i inni gracze zaliczają ci zadanie, kliknij Zadanie zaliczone, jeśli jest przeciwnie, to kliknij Zadanie nie zaliczone.</p><button id="task_completed_button">Zadanie zaliczone</button>&nbsp &nbsp &nbsp<button id="task_uncompleted_button">Zadanie nie zaliczone</button></div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+			
+				document.getElementById('task_completed_button').style.cursor = 'pointer';
+				document.getElementById('task_completed_button').style.width = '12%';
+				document.getElementById('task_completed_button').style.fontSize = '25px';
+				document.getElementById('task_completed_button').onclick = function() {
+					task_completed('witches');
+				}
+				
+				document.getElementById('task_uncompleted_button').style.cursor = 'pointer';
+				document.getElementById('task_uncompleted_button').style.width = '12%';
+				document.getElementById('task_uncompleted_button').style.fontSize = '25px';
+				document.getElementById('task_uncompleted_button').onclick = function() {
+					task_uncompleted('witches');
+				}
+			}
+			
+			function task_completed(x) {
+				if(x == 'witches') {
+					document.getElementById('task_result').innerHTML = 'Pokonałeś/-aś wiedźmy, dzięki czemu możesz kontynuować swoją podróż!<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				}
+				else if(x == 'bandits') {
+					document.getElementById('task_result').innerHTML = 'Pokonałeś/-aś bandytów i przekazałeś/-aś ich w ręce najbliższego patrolu rycerzy, dzięki czemu możesz kontynuować swoją podróż w dobrym humorze!<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				}
+				else if(x == 'pirates') {
+					document.getElementById('task_result').innerHTML = 'Razem z załogą statku udało wam się pokonać piratów, dzięki czemu możesz kontynuować swoją podróż po spokojnym morzu!<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				}
+				else if(x == 'orcs') {
+					document.getElementById('task_result').innerHTML = 'Udało ci się uciecz przed szałem orków, dzięki czemu możesz kontynuować swoją podróż w spokoju!<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				}
+				else if(x == 'bear') {
+					document.getElementById('task_result').innerHTML = 'Pokonałeś/-aś napotkane zwierzę, dzięki czemu możesz kontynuować swoją podróż ciesząc się odgłosami przyrody!<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				}
+				document.getElementById('return_button_task').style.cursor = 'pointer';
+				document.getElementById('return_button_task').style.width = '12%';
+				document.getElementById('return_button_task').style.fontSize = '25px';
+				document.getElementById('return_button_task').onclick = function() {
+					document.getElementById('dice_button').style.cursor = 'pointer';
+					document.getElementById('dice_button').onclick = function() {
+						throw_a_dice();
+					}
+					
+					document.getElementById('task_container').innerHTML = '';
+					document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+				}
+				
+				document.getElementById('task_completed_button').onclick = function() {};
+				document.getElementById('task_completed_button').style.cursor = 'default';
+				document.getElementById('task_uncompleted_button').onclick = function() {};
+				document.getElementById('task_uncompleted_button').style.cursor = 'default';
+			}
+			
+			function task_uncompleted(x) {
+				if(x == 'witches') {
+					document.getElementById('task_result').innerHTML = 'Nie pokonałeś/-aś wiedźm. Uwięziły cię w klatce i poszły szykować resztę składników na miksturę. Uciekłeś/-aś z klatki dopiero po kilku godzinach, co opóźniło twoją podróż. (w efekcie cofasz się o 3 pola)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+					
+					document.getElementById('return_button_task').onclick = function() {
+						document.getElementById('dice_button').style.cursor = 'pointer';
+						document.getElementById('dice_button').onclick = function() {
+							throw_a_dice();
+						}
+						
+						document.getElementById('task_container').innerHTML = '';
+						move_backwards(3, sessionStorage.getItem('number_of_players'));
+					}
+				}
+				else if(x == 'bandits') {
+					document.getElementById('task_result').innerHTML = 'Nie pokonałeś/-aś bandytów. Odebrali ci wszystkie pieniądze i przywiązali do drzewa. Dopiero po upływie dłuższej ilości czasu zjawił się patrol rycerzy i ci pomógł. (w efekcie cofasz się o 4 pola)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				
+					document.getElementById('return_button_task').onclick = function() {
+						document.getElementById('dice_button').style.cursor = 'pointer';
+						document.getElementById('dice_button').onclick = function() {
+							throw_a_dice();
+						}
+						
+						document.getElementById('task_container').innerHTML = '';
+						move_backwards(4, sessionStorage.getItem('number_of_players'));
+					}
+				}
+				else if(x == 'pirates') {
+					document.getElementById('task_result').innerHTML = 'Tobie oraz załodze statku nie udało się pokonać piratów. Ograbili was z tego, co chcieli oraz zniszczyli część statku. Dopiero po dokonaniu wszelkich napraw możesz kontynuować swoją podróż po morzu. (w efekcie cofasz się o 5 pól)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				
+					document.getElementById('return_button_task').onclick = function() {
+						document.getElementById('dice_button').style.cursor = 'pointer';
+						document.getElementById('dice_button').onclick = function() {
+							throw_a_dice();
+						}
+						
+						document.getElementById('task_container').innerHTML = '';
+						move_backwards(5, sessionStorage.getItem('number_of_players'));
+					}
+				}
+				else if(x == 'orcs') {
+					document.getElementById('task_result').innerHTML = 'Nie udało ci się uciec od orków, którzy znani są ze swojej agresywnej natury. W swoim szale poważnie cię poranili, przez co musiałeś/-aś spędzić wiele dni na leczeniu. (w efekcie cofasz się o 6 pól)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				
+					document.getElementById('return_button_task').onclick = function() {
+						document.getElementById('dice_button').style.cursor = 'pointer';
+						document.getElementById('dice_button').onclick = function() {
+							throw_a_dice();
+						}
+						
+						document.getElementById('task_container').innerHTML = '';
+						move_backwards(6, sessionStorage.getItem('number_of_players'));
+					}
+				}
+				else if(x == 'bear') {
+					document.getElementById('task_result').innerHTML = 'Nie udało ci się pokonać niedźwiedzia, przez co zyskałeś parę ran. (w efekcie cofasz się o 2 pola)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				
+					document.getElementById('return_button_task').onclick = function() {
+						document.getElementById('dice_button').style.cursor = 'pointer';
+						document.getElementById('dice_button').onclick = function() {
+							throw_a_dice();
+						}
+						
+						document.getElementById('task_container').innerHTML = '';
+						move_backwards(2, sessionStorage.getItem('number_of_players'));
+					}
+				}
+				document.getElementById('return_button_task').style.cursor = 'pointer';
+				document.getElementById('return_button_task').style.width = '12%';
+				document.getElementById('return_button_task').style.fontSize = '25px';
+				
+				document.getElementById('task_completed_button').onclick = function() {};
+				document.getElementById('task_completed_button').style.cursor = 'default';
+				document.getElementById('task_uncompleted_button').onclick = function() {};
+				document.getElementById('task_uncompleted_button').style.cursor = 'default';
+			}
+			
+			function dragon() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Idąc drogą, nagle zobaczyłeś/-aś ogromny cień. Po podniesieniu głowy zobaczyłeś/-aś smoka, który z otwartą paszczą leciał wprost na ciebie!</div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+				
+				document.getElementById('task_result').innerHTML = 'Z uczuciem gorąca z tyłu, musiałeś/-aś desperacko uciekać przed smokiem, a nawet kiedy już ci się udało, przyczaiłeś/-aś się na jakiś czas w obawie przed ponownym spotkaniem z gadem, co opóźniło twoją podróż. (w efekcie cofasz się o 7 pól)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				document.getElementById('return_button_task').style.cursor = 'pointer';
+				document.getElementById('return_button_task').style.width = '12%';
+				document.getElementById('return_button_task').style.fontSize = '25px';
+				document.getElementById('return_button_task').onclick = function() {
+					document.getElementById('dice_button').style.cursor = 'pointer';
+					document.getElementById('dice_button').onclick = function() {
+						throw_a_dice();
+					}
+					
+					document.getElementById('task_container').innerHTML = '';
+					move_backwards(7, sessionStorage.getItem('number_of_players'));
+					
+				}
+			}
+			
+			function bandits_rhyme() {
+				let time_b = new Date();
+				let rhyme_words = ['smok', 'samochód', 'człowiek', 'dziecko', 'lizak', 'tło', 'zdjęcie', 'wierszyk', 'poeta', 'temperament', 'kot', 'pies', 'żaba', 'noc', 'drzwi', 'magia', 'różdżka', 'książka', 'irys', 'elfy', 'krasnolud', 'kostur'];
+				
+				let chosen_rhyme_word_number = Math.round((Math.random() * time_b.getSeconds() * time_b.getMilliseconds())) % (rhyme_words.length);
+			
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Spotkałeś/-aś grupę bandytów, którzy chcą cię okraść!</div><div align="center" id="task_place"><p id="task_description">Powiedz wierszyk zawierający słowo "' + rhyme_words[chosen_rhyme_word_number] + '" (nie może się być taki sam jak poprzednio powiedziane wierszyki w aktualnej rozgrywce). Jeśli się uda i inni gracze zaliczają ci zadanie, kliknij Zadanie zaliczone, jeśli jest przeciwnie, to kliknij Zadanie nie zaliczone.</p><button id="task_completed_button">Zadanie zaliczone</button>&nbsp &nbsp &nbsp<button id="task_uncompleted_button">Zadanie nie zaliczone</button></div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+			
+				document.getElementById('task_completed_button').style.cursor = 'pointer';
+				document.getElementById('task_completed_button').style.width = '12%';
+				document.getElementById('task_completed_button').style.fontSize = '25px';
+				document.getElementById('task_completed_button').onclick = function() {
+					task_completed('bandits');
+				}
+				
+				document.getElementById('task_uncompleted_button').style.cursor = 'pointer';
+				document.getElementById('task_uncompleted_button').style.width = '12%';
+				document.getElementById('task_uncompleted_button').style.fontSize = '25px';
+				document.getElementById('task_uncompleted_button').onclick = function() {
+					task_uncompleted('bandits');
+				}
+			}
+			
+			function pirates() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Podczas swojej przeprawy statkiem przez morze, spotkałeś/-aś piratów, którzy chcą zaatakować twój statek!</div><div align="center" id="task_place"><p id="task_description">Podaj po dwa fakty o każdym z graczy nie licząc ciebie (nie mogą to być takie same fakty jak poprzednio wymienione w aktualnej rozgrywce). Jeśli się uda i inni gracze zaliczają ci zadanie, kliknij Zadanie zaliczone, jeśli jest przeciwnie, to kliknij Zadanie nie zaliczone.</p><button id="task_completed_button">Zadanie zaliczone</button>&nbsp &nbsp &nbsp<button id="task_uncompleted_button">Zadanie nie zaliczone</button></div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+			
+				document.getElementById('task_completed_button').style.cursor = 'pointer';
+				document.getElementById('task_completed_button').style.width = '12%';
+				document.getElementById('task_completed_button').style.fontSize = '25px';
+				document.getElementById('task_completed_button').onclick = function() {
+					task_completed('pirates');
+				}
+				
+				document.getElementById('task_uncompleted_button').style.cursor = 'pointer';
+				document.getElementById('task_uncompleted_button').style.width = '12%';
+				document.getElementById('task_uncompleted_button').style.fontSize = '25px';
+				document.getElementById('task_uncompleted_button').onclick = function() {
+					task_uncompleted('pirates');
+				}
+			}
+			
+			function orcs_dice() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Podczas twojej podróży, nagle z lasu wyskoczyła grupa szalejących orków!</div><div align="center" id="dice_task_place"><p id="dice_task_description">Rzuć kostką. Jeśli wyrzucisz liczbę z zakresu 1-3, to uciekniesz od orków, ale jeśli wyrzucisz liczbę z zakresu 4-6, orkowie cię dopadną.</p><button id="dice_button_task">Rzuć kostką</button><p id="dice_number_task"></p></div><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+			
+				document.getElementById('dice_button_task').style.cursor = 'pointer';
+				document.getElementById('dice_button_task').style.width = '12%';
+				document.getElementById('dice_button_task').style.fontSize = '25px';
+				document.getElementById('dice_button_task').onclick = function() {
+					throw_a_dice_task('orcs');
+				}
+			}
+			
+			function orcs_jokes() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Podczas twojej podróży, nagle z lasu wyskoczyła grupa szalejących orków!</div><div align="center" id="task_place"><p id="task_description">Opowiedz każdemu z graczy po jednym dowcipie (dowcipy nie mogą być takie same jak poprzednio powiedziane w aktualnej rozgrywce). Jeśli się uda i inni gracze zaliczają ci zadanie, kliknij Zadanie zaliczone, jeśli jest przeciwnie, to kliknij Zadanie nie zaliczone.</p><button id="task_completed_button">Zadanie zaliczone</button>&nbsp &nbsp &nbsp<button id="task_uncompleted_button">Zadanie nie zaliczone</button></div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+			
+				document.getElementById('task_completed_button').style.cursor = 'pointer';
+				document.getElementById('task_completed_button').style.width = '12%';
+				document.getElementById('task_completed_button').style.fontSize = '25px';
+				document.getElementById('task_completed_button').onclick = function() {
+					task_completed('orcs');
+				}
+				
+				document.getElementById('task_uncompleted_button').style.cursor = 'pointer';
+				document.getElementById('task_uncompleted_button').style.width = '12%';
+				document.getElementById('task_uncompleted_button').style.fontSize = '25px';
+				document.getElementById('task_uncompleted_button').onclick = function() {
+					task_uncompleted('orcs');
+				}
+			}
+			
+			function bear() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Kiedy podrózowałeś/-aś przez las, na twojej drodze stanął wielki niedźwiedź!</div><div align="center" id="task_place"><p id="task_description">Zrób 10 pompek. Jeśli się uda i inni gracze zaliczają ci zadanie, kliknij Zadanie zaliczone, jeśli jest przeciwnie, to kliknij Zadanie nie zaliczone.</p><button id="task_completed_button">Zadanie zaliczone</button>&nbsp &nbsp &nbsp<button id="task_uncompleted_button">Zadanie nie zaliczone</button></div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+			
+				document.getElementById('task_completed_button').style.cursor = 'pointer';
+				document.getElementById('task_completed_button').style.width = '12%';
+				document.getElementById('task_completed_button').style.fontSize = '25px';
+				document.getElementById('task_completed_button').onclick = function() {
+					task_completed('bear');
+				}
+				
+				document.getElementById('task_uncompleted_button').style.cursor = 'pointer';
+				document.getElementById('task_uncompleted_button').style.width = '12%';
+				document.getElementById('task_uncompleted_button').style.fontSize = '25px';
+				document.getElementById('task_uncompleted_button').onclick = function() {
+					task_uncompleted('bear');
+				}
+			}
+			
+			function storm() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Podczas przepływania statkiem przez morze, nagle wezbrał się sztorm!</div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+				
+				document.getElementById('task_result').innerHTML = 'Razem z załogą statku, po trudach związanych z walką z morzem, przybiliście do najbliższego portu, gdzie musieliście przeczekać sztorm, co opóźniło twoją podróż. (w efekcie cofasz się o 6 pól)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				document.getElementById('return_button_task').style.cursor = 'pointer';
+				document.getElementById('return_button_task').style.width = '12%';
+				document.getElementById('return_button_task').style.fontSize = '25px';
+				document.getElementById('return_button_task').onclick = function() {
+					document.getElementById('dice_button').style.cursor = 'pointer';
+					document.getElementById('dice_button').onclick = function() {
+						throw_a_dice();
+					}
+					
+					document.getElementById('task_container').innerHTML = '';
+					move_backwards(6, sessionStorage.getItem('number_of_players'));
+					
+				}
+			}
+			
+			function golem() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Kiedy w słoneczny dzień przechodziłeś/-aś sobie przez dolinę, nagle zauważyłeś/-aś golema, który wymknął się spod kontroli obecnemu tam magowi!</div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+				
+				document.getElementById('task_result').innerHTML = 'Po długich zmaganiach postanowiłeś/-aś uciekać, zauważywszy, że nie masz szans zadać jakichkolwiek obrażeń kamiennej istocie, zanim jednak uciekłeś/-aś, golem zdążył cię zranić. (w efekcie cofasz się o 4 pola)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				document.getElementById('return_button_task').style.cursor = 'pointer';
+				document.getElementById('return_button_task').style.width = '12%';
+				document.getElementById('return_button_task').style.fontSize = '25px';
+				document.getElementById('return_button_task').onclick = function() {
+					document.getElementById('dice_button').style.cursor = 'pointer';
+					document.getElementById('dice_button').onclick = function() {
+						throw_a_dice();
+					}
+					
+					document.getElementById('task_container').innerHTML = '';
+					move_backwards(4, sessionStorage.getItem('number_of_players'));
+					
+				}
+			}
+			
+			function fire_salamander() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Podczas podróży, napotkałeś/-aś na swojej drodze ognistą salamandrę na wolności!</div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+				
+				document.getElementById('task_result').innerHTML = 'Podczas spotkania ze stworem, zostałeś/-aś mocno oparzony jego płomieniami i musiałeś poświęcić dużo czasu na powrót do zdrowia, co znacznie opóźniło twoją podróż. (w efekcie cofasz się o 9 pól)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				document.getElementById('return_button_task').style.cursor = 'pointer';
+				document.getElementById('return_button_task').style.width = '12%';
+				document.getElementById('return_button_task').style.fontSize = '25px';
+				document.getElementById('return_button_task').onclick = function() {
+					document.getElementById('dice_button').style.cursor = 'pointer';
+					document.getElementById('dice_button').onclick = function() {
+						throw_a_dice();
+					}
+					
+					document.getElementById('task_container').innerHTML = '';
+					move_backwards(9, sessionStorage.getItem('number_of_players'));
+					
+				}
+			}
+			
+			function swamps() {
+				document.getElementById('task_container').innerHTML = '<div id="task_screen">Napotkałeś/-aś na swojej drodze Bagna Triadu!</div><br/><div id="task_result"></div>';
+				let task_screen = document.getElementById('task_screen');
+				document.body.style.fontSize = '25px';
+				task_screen.style.textAlign = 'center';
+				
+				document.getElementById('task_result').innerHTML = 'W obawie przed magicznymi istotami zamieszkującymi te bagna, postanowiłeś/-aś pójść okrężną drogą, co opóźniło twoją podróż. (w efekcie cofasz się o 7 pól)<br/><br/><div align="center"><button id="return_button_task">Wznów grę</button></div>';
+				document.getElementById('return_button_task').style.cursor = 'pointer';
+				document.getElementById('return_button_task').style.width = '12%';
+				document.getElementById('return_button_task').style.fontSize = '25px';
+				document.getElementById('return_button_task').onclick = function() {
+					document.getElementById('dice_button').style.cursor = 'pointer';
+					document.getElementById('dice_button').onclick = function() {
+						throw_a_dice();
+					}
+					
+					document.getElementById('task_container').innerHTML = '';
+					move_backwards(7, sessionStorage.getItem('number_of_players'));
+					
+				}
+			}
+		}
+		
+		function move_backwards(x, y) {
+			let max_x_p;
+			let max_y_p;
+			let max_range;
+			let travelled_distance = 0;
+			let turn;
+			
+			if(y == 2) {
+				if(sessionStorage.getItem('player_turn') == 1) {
+					max_x_p = p_2_position_x - (50 * x);
+					max_y_p = p_2_position_y - (50 * x);
+					max_x_m = p_2_position_x + (50 * x);
+					max_y_m = p_2_position_y + (50 * x);
+					max_range = 50 * x;
+					turn = 2;
+				}
+				else if(sessionStorage.getItem('player_turn') == 2) {
+					max_x_p = p_1_position_x - (50 * x);
+					max_y_p = p_1_position_y - (50 * x);
+					max_x_m = p_1_position_x + (50 * x);
+					max_y_m = p_1_position_y + (50 * x);
+					max_range = 50 * x;
+					turn = 1;
+				}
+			}
+			else if(y == 3) {
+				if(sessionStorage.getItem('player_turn') == 1) {
+					max_x_p = p_2_position_x - (50 * x);
+					max_y_p = p_2_position_y - (50 * x);
+					max_x_m = p_2_position_x + (50 * x);
+					max_y_m = p_2_position_y + (50 * x);
+					max_range = 50 * x;
+					turn = 3;
+				}
+				else if(sessionStorage.getItem('player_turn') == 2) {
+					max_x_p = p_1_position_x - (50 * x);
+					max_y_p = p_1_position_y - (50 * x);
+					max_x_m = p_1_position_x + (50 * x);
+					max_y_m = p_1_position_y + (50 * x);
+					max_range = 50 * x;
+					turn = 1;
+				}
+				else if(sessionStorage.getItem('player_turn') == 3) {
+					max_x_p = p_1_position_x - (50 * x);
+					max_y_p = p_1_position_y - (50 * x);
+					max_x_m = p_1_position_x + (50 * x);
+					max_y_m = p_1_position_y + (50 * x);
+					max_range = 50 * x;
+					turn = 2;
+				}
+			}
+			else if(y == 4) {
+				if(sessionStorage.getItem('player_turn') == 1) {
+					max_x_p = p_2_position_x - (50 * x);
+					max_y_p = p_2_position_y - (50 * x);
+					max_x_m = p_2_position_x + (50 * x);
+					max_y_m = p_2_position_y + (50 * x);
+					max_range = 50 * x;
+					turn = 4;
+				}
+				else if(sessionStorage.getItem('player_turn') == 2) {
+					max_x_p = p_1_position_x - (50 * x);
+					max_y_p = p_1_position_y - (50 * x);
+					max_x_m = p_1_position_x + (50 * x);
+					max_y_m = p_1_position_y + (50 * x);
+					max_range = 50 * x;
+					turn = 1;
+				}
+				else if(sessionStorage.getItem('player_turn') == 3) {
+					max_x_p = p_1_position_x - (50 * x);
+					max_y_p = p_1_position_y - (50 * x);
+					max_x_m = p_1_position_x + (50 * x);
+					max_y_m = p_1_position_y + (50 * x);
+					max_range = 50 * x;
+					turn = 2;
+				}
+				else if(sessionStorage.getItem('player_turn') == 4) {
+					max_x_p = p_1_position_x - (50 * x);
+					max_y_p = p_1_position_y - (50 * x);
+					max_x_m = p_1_position_x + (50 * x);
+					max_y_m = p_1_position_y + (50 * x);
+					max_range = 50 * x;
+					turn = 3;
+				}
+			}
+			
+			make_a_move_backwards();
+			
+			document.getElementById('dice_number_place').innerText = 'Tura gracza ' + players_names[sessionStorage.getItem('player_turn') - 1] + '.';
+			
+			function make_a_move_backwards() {
+				if(turn == 1) {
+					if(p_1_position_y - 12.5 > 0 && sessionStorage.getItem('p_1_side') == 'down') {
+						if(p_1_position_y > max_y_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_1_position_y -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_1_position_y - 12.5 == 0 && sessionStorage.getItem('p_1_side') == 'down') {
+						travelled_distance = 0;
+					}
+					
+					if(p_1_position_x - 12.5 > 0 && sessionStorage.getItem('p_1_side') == 'right') {
+						if(p_1_position_x > max_x_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_1_position_x -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_1_position_x - 12.5 == 0 && sessionStorage.getItem('p_1_side') == 'right') {
+						base_backwards(1, 1);
+						make_a_move_backwards();
+					}
+					
+					if(p_1_position_y + 37.5 < 400 && sessionStorage.getItem('p_1_side') == 'up') {
+						if(p_1_position_y < max_y_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_1_position_y += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_1_position_y + 37.5 == 400 && sessionStorage.getItem('p_1_side') == 'up') {
+						base_backwards(2, 1);
+						make_a_move_backwards();
+					}
+					
+					if(p_1_position_x + 37.5 < 1300 && sessionStorage.getItem('p_1_side') == 'left') {
+						if(p_1_position_x < max_x_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_1_position_x += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					
+					if(p_1_position_x + 37.5 == 1300 && sessionStorage.getItem('p_1_side') == 'left') {
+						base_backwards(3, 1);
+						make_a_move_backwards();
+					}
+				}
+				else if(turn == 2) {
+					if(p_2_position_y - 12.5 > 0 && sessionStorage.getItem('p_2_side') == 'down') {
+						if(p_2_position_y > max_y_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_2_position_y -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_2_position_y - 12.5 == 0 && sessionStorage.getItem('p_2_side') == 'down') {
+						travelled_distance = 0;
+					}
+					
+					if(p_2_position_x - 37.5 > 0 && sessionStorage.getItem('p_2_side') == 'right') {
+						if(p_2_position_x > max_x_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_2_position_x -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_2_position_x - 37.5 == 0 && sessionStorage.getItem('p_2_side') == 'right') {
+						base_backwards(1, 2);
+						make_a_move_backwards();
+					}
+					
+					if(p_2_position_y + 37.5 < 400 && sessionStorage.getItem('p_2_side') == 'up') {
+						if(p_2_position_y < max_y_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_2_position_y += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_2_position_y + 37.5 == 400 && sessionStorage.getItem('p_2_side') == 'up') {
+						base_backwards(2, 2);
+						make_a_move_backwards();
+					}
+					
+					if(p_2_position_x + 12.5 < 1300 && sessionStorage.getItem('p_2_side') == 'left') {
+						if(p_2_position_x < max_x_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_2_position_x += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					
+					if(p_2_position_x + 12.5 == 1300 && sessionStorage.getItem('p_2_side') == 'left') {
+						base_backwards(3, 2);
+						make_a_move_backwards();
+					}
+				}
+				else if(turn == 3) {
+					if(p_3_position_y - 37.5 > 0 && sessionStorage.getItem('p_3_side') == 'down') {
+						if(p_3_position_y > max_y_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_3_position_y -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_3_position_y - 37.5 == 0 && sessionStorage.getItem('p_3_side') == 'down') {
+						travelled_distance = 0;
+					}
+					
+					if(p_3_position_x - 12.5 > 0 && sessionStorage.getItem('p_3_side') == 'right') {
+						if(p_3_position_x > max_x_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_3_position_x -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_3_position_x - 12.5 == 0 && sessionStorage.getItem('p_3_side') == 'right') {
+						base_backwards(1, 3);
+						make_a_move_backwards();
+					}
+					
+					if(p_3_position_y + 12.5 < 400 && sessionStorage.getItem('p_3_side') == 'up') {
+						if(p_3_position_y < max_y_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_3_position_y += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_3_position_y + 12.5 == 400 && sessionStorage.getItem('p_3_side') == 'up') {
+						base_backwards(2, 3);
+						make_a_move_backwards();
+					}
+					
+					if(p_3_position_x + 37.5 < 1300 && sessionStorage.getItem('p_3_side') == 'left') {
+						if(p_3_position_x < max_x_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_3_position_x += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					
+					if(p_3_position_x + 37.5 == 1300 && sessionStorage.getItem('p_3_side') == 'left') {
+						base_backwards(3, 3);
+						make_a_move_backwards();
+					}
+				}
+				else if(turn == 4) {
+					if(p_4_position_y - 37.5 > 0 && sessionStorage.getItem('p_4_side') == 'down') {
+						if(p_4_position_y > max_y_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_4_position_y -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_4_position_y - 37.5 == 0 && sessionStorage.getItem('p_4_side') == 'down') {
+						travelled_distance = 0;
+					}
+					
+					if(p_4_position_x - 37.5 > 0 && sessionStorage.getItem('p_4_side') == 'right') {
+						if(p_4_position_x > max_x_p) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_4_position_x -= 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_4_position_x - 37.5 == 0 && sessionStorage.getItem('p_4_side') == 'right') {
+						base_backwards(1, 4);
+						make_a_move_backwards();
+					}
+					
+					if(p_4_position_y + 12.5 < 400 && sessionStorage.getItem('p_4_side') == 'up') {
+						if(p_4_position_y < max_y_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_4_position_y += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					else if(p_4_position_y + 12.5 == 400 && sessionStorage.getItem('p_4_side') == 'up') {
+						base_backwards(2, 4);
+						make_a_move_backwards();
+					}
+					
+					if(p_4_position_x + 12.5 < 1300 && sessionStorage.getItem('p_4_side') == 'left') {
+						if(p_4_position_x < max_x_m) {
+							if(max_range - travelled_distance > 0) {
+								context_b.clearRect(0, 0, 1300, 400);
+								context_b.putImageData(canvas_content, 0, 0);
+								
+								p_4_position_x += 5;
+								travelled_distance += 5;
+								
+								draw_players(sessionStorage.getItem('number_of_players'));
+								
+								window.requestAnimationFrame(make_a_move_backwards);
+							}
+						}
+					}
+					
+					if(p_4_position_x + 12.5 == 1300 && sessionStorage.getItem('p_4_side') == 'left') {
+						base_backwards(3, 4);
+						make_a_move_backwards();
+					}
+				}
+			}
+			
+			function base_backwards(x, y) {
+				if(y == 1) {
+					if(x == 1) {
+						sessionStorage.setItem('p_1_side', 'down');
+					}
+					else if(x == 2) {
+						sessionStorage.setItem('p_1_side', 'right');
+					}
+					else if(x == 3) {
+						sessionStorage.setItem('p_1_side', 'up');
+					}
+				}
+				else if(y == 2) {
+					if(x == 1) {
+						sessionStorage.setItem('p_2_side', 'down');
+					}
+					else if(x == 2) {
+						sessionStorage.setItem('p_2_side', 'right');
+					}
+					else if(x == 3) {
+						sessionStorage.setItem('p_2_side', 'up');
+					}
+				}
+				else if(y == 3) {
+					if(x == 1) {
+						sessionStorage.setItem('p_3_side', 'down');
+					}
+					else if(x == 2) {
+						sessionStorage.setItem('p_3_side', 'right');
+					}
+					else if(x == 3) {
+						sessionStorage.setItem('p_3_side', 'up');
+					}
+				}
+				else if(y == 4) {
+					if(x == 1) {
+						sessionStorage.setItem('p_4_side', 'down');
+					}
+					else if(x == 2) {
+						sessionStorage.setItem('p_4_side', 'right');
+					}
+					else if(x == 3) {
+						sessionStorage.setItem('p_4_side', 'up');
+					}
+					
+				}
+			}
+		}
+		
+		function draw_a_decoration() {
+			draw_a_sword_decoration();
+			draw_a_shield_decoration(550, 100);
+			draw_a_bow_decoration(1200, 200);
+		
+			function draw_a_sword_decoration() {
+				context_b.beginPath();
+				context_b.lineWidth = 2.5;
+				context_b.strokeStyle = 'blue';
+				context_b.moveTo(140, 150);
+				context_b.lineTo(140, 250);
+				context_b.stroke();
+				context_b.beginPath();
+				context_b.strokeStyle = 'black';
+				context_b.moveTo(140, 250);
+				context_b.lineTo(100, 250);
+				context_b.stroke();
+				context_b.moveTo(100, 250);
+				context_b.lineTo(100, 270);
+				context_b.stroke();
+				context_b.moveTo(100, 270);
+				context_b.lineTo(150, 270);
+				context_b.stroke();
+				context_b.moveTo(150, 270);
+				context_b.lineTo(150, 300);
+				context_b.stroke();
+				context_b.moveTo(150, 300);
+				context_b.lineTo(165, 300);
+				context_b.stroke();
+				context_b.moveTo(165, 300);
+				context_b.lineTo(165, 270);
+				context_b.stroke();
+				context_b.moveTo(165, 270);
+				context_b.lineTo(215, 270);
+				context_b.stroke();
+				context_b.moveTo(215, 270);
+				context_b.lineTo(215, 250);
+				context_b.stroke();
+				context_b.moveTo(215, 250);
+				context_b.lineTo(175, 250);
+				context_b.stroke();
+				context_b.beginPath();
+				context_b.strokeStyle = 'blue';
+				context_b.moveTo(175, 250);
+				context_b.lineTo(175, 150);
+				context_b.stroke();
+				context_b.moveTo(140, 150);
+				context_b.lineTo(140, 125);
+				context_b.stroke();
+				context_b.moveTo(140, 125);
+				context_b.lineTo(157.5, 100);
+				context_b.stroke();
+				context_b.moveTo(157.5, 100);
+				context_b.lineTo(175, 125);
+				context_b.stroke();
+				context_b.moveTo(175, 125);
+				context_b.lineTo(175, 150);
+				context_b.stroke();
+				
+				context_b.beginPath();
+				context_b.lineWidth = 10;
+				context_b.strokeStyle = 'black';
+				context_b.moveTo(105, 260);
+				context_b.lineTo(210, 260);
+				context_b.stroke();
+				
+				context_b.beginPath();
+				context_b.lineWidth = 10;
+				context_b.strokeStyle = 'black';
+				context_b.moveTo(157.5, 270);
+				context_b.lineTo(157.5, 295);
+				context_b.stroke();
+				
+				context_b.beginPath();
+				context_b.lineWidth = 25;
+				context_b.strokeStyle = 'darkBlue';
+				context_b.moveTo(157.5, 250);
+				context_b.lineTo(157.5, 125);
+				context_b.stroke();
+				context_b.beginPath();
+				context_b.lineWidth = 20;
+				context_b.strokeStyle = 'darkBlue';
+				context_b.moveTo(157.5, 125);
+				context_b.lineTo(157.5, 120);
+				context_b.stroke();
+				context_b.beginPath();
+				context_b.lineWidth = 15;
+				context_b.strokeStyle = 'darkBlue';
+				context_b.moveTo(157.5, 120);
+				context_b.lineTo(157.5, 115);
+				context_b.stroke();
+				context_b.beginPath();
+				context_b.lineWidth = 10;
+				context_b.strokeStyle = 'darkBlue';
+				context_b.moveTo(157.5, 115);
+				context_b.lineTo(157.5, 110);
+				context_b.stroke();
+				context_b.beginPath();
+				context_b.lineWidth = 5;
+				context_b.strokeStyle = 'darkBlue';
+				context_b.moveTo(157.5, 110);
+				context_b.lineTo(157.5, 105);
+				context_b.stroke();
+				context_b.lineWidth = 1;
+			}
+			
+			function draw_a_shield_decoration(x, y) {
+				context_b.beginPath();
+				context_b.moveTo(x, y);
+				y += 100;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				y -= 100;
+				x += 200;
+				context_b.moveTo(x, y);
+				y += 100;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				context_b.moveTo(x, y);
+				x -= 100;
+				context_b.arc(x, y, 100, 0, Math.PI);
+				context_b.stroke();
+				x -= 100;
+				y -= 100;
+				context_b.moveTo(x, y);
+				x += 200;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				
+				context_b.beginPath();
+				x -= 100;
+				context_b.lineWidth = 20;
+				context_b.moveTo(x, y);
+				y += 200;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				y -= 100;
+				x -= 100;
+				context_b.moveTo(x, y);
+				x += 200;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				context_b.lineWidth = 1;
+				
+			}
+			
+			function draw_a_bow_decoration(x, y) {
+				context_b.beginPath();
+				context_b.moveTo(x, y);
+				y -= 25;
+				x -= 50;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				y += 25;
+				x += 50;
+				context_b.moveTo(x, y);
+				y += 25;
+				x -= 50;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				context_b.moveTo(x, y);
+				y -= 50;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				y += 25;
+				context_b.moveTo(x, y);
+				x -= 150;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				context_b.moveTo(x, y);
+				y -= 25;
+				x -= 25;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				y += 25;
+				x += 25;
+				context_b.moveTo(x, y);
+				y += 25;
+				x -= 25;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				y -= 25;
+				x += 25;
+				context_b.moveTo(x, y);
+				x -= 25;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				
+				context_b.beginPath();
+				context_b.lineWidth = 5;
+				x += 65;
+				y -= 75;
+				context_b.moveTo(x, y);
+				y += 75;
+				context_b.arc(x, y, 75, 1.5 * Math.PI, 0.5 * Math.PI);
+				context_b.stroke();
+				context_b.lineWidth = 1;
+				y -= 75;
+				context_b.moveTo(x, y);
+				y += 150;
+				context_b.lineTo(x, y);
+				context_b.stroke();
+				
+			}
+		}
+	</script>
+</html>
